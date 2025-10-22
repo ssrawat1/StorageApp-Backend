@@ -22,8 +22,10 @@
     "zod": "^3.25.64"
   },
   "scripts": {
-    "start": "node --watch --env-file=.env app.js",
-    "setup": "node --env-file=.env config/setUp.js"
+    "dev": "node --watch no-deprecation --env-file=.env app.js",
+    "start": "node --no-deprecation --env-file=.env app.js",
+    "setup": "node --env-file=.env config/setUp.js",
+    "build": "node build.js"
   },
   "name": "storageapp",
   "version": "1.0.0",
