@@ -1,0 +1,35 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/cloudfront-signer": "^3.862.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dompurify": "^3.2.6",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.0.1",
+    "express-slow-down": "^2.1.0",
+    "google-auth-library": "^9.15.1",
+    "helmet": "^8.1.0",
+    "jsdom": "^26.1.0",
+    "mongodb": "^6.17.0",
+    "mongoose": "^8.13.2",
+    "nodemailer": "^7.0.3",
+    "razorpay": "^2.9.6",
+    "redis": "^5.5.5",
+    "zod": "^3.25.64"
+  },
+  "scripts": {
+    "start": "node --watch --env-file=.env app.js",
+    "setup": "node --env-file=.env config/setUp.js"
+  },
+  "name": "storageapp",
+  "version": "1.0.0",
+  "main": "app.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
