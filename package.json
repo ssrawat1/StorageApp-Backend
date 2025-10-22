@@ -25,7 +25,7 @@
     "dev": "node --watch --no-deprecation app.js",
     "start": "node --no-deprecation app.js",
     "setup": "node config/setUp.js",
-    "build": "node i"
+    "build": "npm i"
   },
   "name": "storageapp",
   "version": "1.0.0",
