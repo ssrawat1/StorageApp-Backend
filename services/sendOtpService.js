@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false,
   },
-  connectionTimeout: 10000,
+  connectionTimeout: 60000,
   socketTimeout: 20000,
 });
 
