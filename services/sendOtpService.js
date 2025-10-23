@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
   connectionTimeout: 60000,
-  socketTimeout: 20000,
+  socketTimeout: 120000,
 });
 
 export async function sendOtpService(email) {
