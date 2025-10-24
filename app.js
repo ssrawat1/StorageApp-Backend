@@ -52,7 +52,7 @@ const limiter = rateLimit({
   message: 'Too many request,Please wait',
 });
 
-// app.use(limiter, throttle(2000, 1));
+app.use(limiter, throttle(2000, 1));
 
 /* Attach DB with Each Request: */
 // app.use((req, res, next) => {
@@ -60,6 +60,10 @@ const limiter = rateLimit({
 //   req.db = db;
 //   next();
 // });
+
+app.get('/', (req, res) => {
+  res.send(200).json({ message: 'Hello, from storage app' });
+});
 
 app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specific middleware directory or /file
 app.use('/file', checkAuth, fileRoutes); // checkAuth is route specific middleware directory or /file
