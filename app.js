@@ -62,7 +62,7 @@ app.use(limiter, throttle(2000, 1));
 // });
 
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Hello, from storage app' });
+  return res.status(200).json({ message: 'Hello, from storage app' });
 });
 
 app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specific middleware directory or /file
@@ -89,5 +89,3 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, () => {
   console.log(`server is listening on address http://localhost:${PORT}`);
 });
-
-
