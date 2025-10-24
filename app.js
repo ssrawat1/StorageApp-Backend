@@ -18,7 +18,7 @@ await connectDB();
 
 const app = express();
 
-/* .env */
+/* .env values */
 const Secret_Key = process.env.SECRET_KEY;
 const PORT = process.env.PORT || 4000;
 const Client_Url = process.env.CLIENT_URL;
@@ -85,3 +85,5 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, () => {
   console.log(`server is listening on address http://localhost:${PORT}`);
 });
+
+
