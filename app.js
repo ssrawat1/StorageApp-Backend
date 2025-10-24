@@ -18,7 +18,7 @@ await connectDB();
 
 const app = express();
 
-/* .env values */
+/* .env */
 const Secret_Key = process.env.SECRET_KEY;
 const PORT = process.env.PORT || 4000;
 const Client_Url = process.env.CLIENT_URL;
