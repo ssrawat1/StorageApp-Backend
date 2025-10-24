@@ -62,7 +62,7 @@ app.use(limiter, throttle(2000, 1));
 // });
 
 app.get('/', (req, res) => {
-  res.send(200).json({ message: 'Hello, from storage app' });
+  res.status(200).json({ message: 'Hello, from storage app' });
 });
 
 app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specific middleware directory or /file
