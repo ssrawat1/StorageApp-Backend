@@ -65,6 +65,12 @@ app.get('/', (req, res) => {
   return res.status(200).json({ message: 'Hello, from storage app' });
 });
 
+/* Testing End Point: */
+app.get('/error', (req, res) => {
+  console.log('process exist with error');
+  process.exit(1);
+});
+
 app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specific middleware directory or /file
 app.use('/file', checkAuth, fileRoutes); // checkAuth is route specific middleware directory or /file
 app.use(userRoutes);
