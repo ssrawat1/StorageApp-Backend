@@ -88,8 +88,8 @@ app.post(
 );
 
 app.use((err, req, res, next) => {
-  res.json(err);
-  // res.status(err.status || 500).json({ error: 'Something went wrong!' });
+  // res.json(err);
+  res.status(err.status || 500).json({ error: 'Something went wrong!' });
 });
 
 const server = app.listen(PORT, () => {

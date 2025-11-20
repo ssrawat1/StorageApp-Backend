@@ -147,7 +147,7 @@ export const getFile = async (req, res, next) => {
     // const singedUrl = await createFileSignedUrl({ key, action, filename });
 
     return res.redirect(cloudFrontSignedUrl);
-
+     
     // const filePath = resolve(import.meta.dirname, '../storage', `${id}${fileData.extension}`);
 
     // // Allow Client To Download the Files
