@@ -273,12 +273,11 @@ export const uploadInitiate = async (req, res, next) => {
       parentDirId,
       userId: req.user._id, // add so that we can easily check the user file
     });
-
+    
     const uploadSignedUrl = await createUploadSignedUrl({
       key: `${_id.toString()}${extension}`,
       contentType: fileContentType,
     });
-
     res.status(200).json({ fileId: _id, uploadSignedUrl });
   } catch (error) {
     next(error);

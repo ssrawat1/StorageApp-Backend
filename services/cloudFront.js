@@ -15,6 +15,6 @@ export const createCloudFrontGetSignedUrl = ({ key, action, filename }) => {
     dateLessThan,
     privateKey,
   });
-  console.log(signedUrl);
   return signedUrl;
-};
+  
+}

@@ -31,7 +31,6 @@ export const createUploadSignedUrl = async ({ key, contentType }) => {
     expiresIn: 300,
     signableHeaders: new Set(['content-type']), // to match the exact content type
   });
-
   return signedUrl;
 };
 
