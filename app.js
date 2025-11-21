@@ -40,7 +40,7 @@ app.use(express.json());
 app.use((req, res, next) => {
   const requestOrigin = req.headers.origin;
   const allowedOrigins = [Client_Url_1, Client_Url_2];
-
+   console.log({requestOrigin,allowedOrigins})
   if (!allowedOrigins.includes(requestOrigin)) {
     return res.status(403).json({ error: 'Origin not allowed' });
   }
