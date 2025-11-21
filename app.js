@@ -37,19 +37,20 @@ app.use(
 app.use(cookieParser(Secret_Key));
 app.use(express.json());
 
-app.use((req, res, next) => {
-  const requestOrigin = req.headers['origin'];
-  const allowedOrigins = [Client_Url_1, Client_Url_2];
-  console.log({ requestOrigin, allowedOrigins });
-  if (requestOrigin && !allowedOrigins.includes(requestOrigin)) {
-    return res.status(403).json({ error: 'Origin not allowed' });
-  }
+const whitelist = [Client_Url_1, Client_Url_2];
 
+app.use(
   cors({
-    origin: requestOrigin,
+    origin: function (origin, callback) {
+      if (whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
-  })(req, res, next);
-});
+  })
+);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
