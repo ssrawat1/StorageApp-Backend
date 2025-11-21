@@ -21,7 +21,8 @@ const app = express();
 /* .env */
 const Secret_Key = process.env.SECRET_KEY;
 const PORT = process.env.PORT || 4000;
-const Client_Url = process.env.CLIENT_URL;
+const Client_Url_1 = process.env.CLIENT_URL_1;
+const Client_Url_2 = process.env.CLIENT_URL_2;
 
 app.use(
   helmet({
@@ -36,12 +37,19 @@ app.use(
 app.use(cookieParser(Secret_Key));
 app.use(express.json());
 
-app.use(
+app.use((req, res, next) => {
+  const requestOrigin = req.headers.origin;
+  const allowedOrigins = [Client_Url_1, Client_Url_2];
+
+  if (!allowedOrigins.includes(requestOrigin)) {
+    return res.status(403).json({ error: 'Origin not allowed' });
+  }
+
   cors({
-    origin: Client_Url,
+    origin: requestOrigin,
     credentials: true,
-  })
-);
+  })(req, res, next);
+});
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
