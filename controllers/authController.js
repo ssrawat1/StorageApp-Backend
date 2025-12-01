@@ -217,7 +217,6 @@ export const loginWithGithub = async (req, res, next) => {
     const emails = await emailResponse.json();
 
     const { name, email, avatar_url, id } = userInfo;
-    console.log({avatar_url})
     const primaryEmailObj = emails.find((e) => e.primary && e.verified);
 
     const verifiedEmail = email || (primaryEmailObj && primaryEmailObj.email);
@@ -246,9 +245,9 @@ export const loginWithGithub = async (req, res, next) => {
       if (allSession.total >= 2) {
         await redisClient.del(allSession.documents[0].id);
       }
-       
+
       /* updating pictureUrl if user is loged in with Github */
-      if (user.pictureUrl && !user.pictureUrl.includes('googleusercontent.com')) {
+      if (user.pictureUrl && !user.pictureUrl.includes('githubusercontent.com')) {
         user.pictureUrl = avatar_url;
         user.provider = 'github';
         await user.save();
