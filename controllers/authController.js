@@ -147,7 +147,7 @@ export const loginWithGoogle = async (req, res, next) => {
     await redisClient.json.set(redisKey, '$', {
       userId: userId,
       rootDirId: rootDirId,
-      role: user.role,
+      role: 'User',
     });
 
     await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
@@ -307,7 +307,7 @@ export const loginWithGithub = async (req, res, next) => {
     await redisClient.json.set(redisKey, '$', {
       userId: userId,
       rootDirId: rootDirId,
-      role: user.role,
+      role: 'User',
     });
 
     await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
