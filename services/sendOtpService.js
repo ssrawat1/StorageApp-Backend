@@ -56,10 +56,10 @@ export async function sendOtpService(email) {
           </div>
 
           <p style="margin-top: 30px; font-size: 12px; color: #868e96;">
-            If you did not request this OTP, please ignore this email or contact our support team immediately.
+            If you did not request this OTP, please ignore this email. If you need assistance, reply to this email and I will respond.
           </p>
 
-          <p>Thank you,<br>The Safemystuff Team</p>
+          <p>Thank you,<br>Sanjay Singh Rawat<br>Safemystuff</p>
         </div>
       `,
     };
