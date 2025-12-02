@@ -194,11 +194,13 @@ export const renameFile = async (req, res, next) => {
 
 export const deleteFile = async (req, res, next) => {
   const { id } = req.params;
-
+  console.log({id})
   // Check if file exists and belong to the same user
   const file = await File.findOne({ _id: id, userId: req.user._id }).select(
     'extension size parentDirId'
   );
+
+  console.log(file)
 
   if (!file) {
     return res.status(404).json({ error: 'File not found!' });
@@ -210,6 +212,7 @@ export const deleteFile = async (req, res, next) => {
 
     // Remove file from s3 bucket
     const res = await deleteFileFromS3({ key: `${id}${file.extension}` });
+    console.log("s3 response:",res)
 
     /* Decreasing file size unless we don't reach at parent Directory */
     await updateDirectorySize(file.parentDirId, -file.size);

@@ -59,6 +59,7 @@ export const getS3FileMetaData = async (key) => {
 
 // To Delete the files from s3
 export const deleteFileFromS3 = async ({ key }) => {
+  console.log('Deleting from s3:', { key });
   const command = new DeleteObjectCommand({
     Bucket: bucketName,
     Key: key,
