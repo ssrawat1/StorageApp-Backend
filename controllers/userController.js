@@ -165,10 +165,11 @@ export const login = async (req, res) => {
   // });
 
   res.cookie('sid', sessionId, {
+    domain: '.safemystuff.store',
     httpOnly: true,
     signed: true,
-    sameSite: 'none',
-    secure:true,
+    sameSite: 'lax',
+    secure: true,
     maxAge: 1000 * 60 * 60 * 24 * 7, // time in ms
   });
 

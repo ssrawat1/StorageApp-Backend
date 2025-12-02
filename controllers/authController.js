@@ -104,9 +104,10 @@ export const loginWithGoogle = async (req, res, next) => {
       await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
 
       res.cookie('sid', sessionId, {
+        domain: '.safemystuff.store',
         httpOnly: true,
         signed: true,
-        sameSite: 'Lax',
+        sameSite: 'lax',
         maxAge: 60 * 1000 * 60 * 24 * 7,
       });
       return res.json({ message: 'logged in', user });
@@ -153,9 +154,10 @@ export const loginWithGoogle = async (req, res, next) => {
     await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
 
     res.cookie('sid', sessionId, {
+      domain: '.safemystuff.store',
       httpOnly: true,
       signed: true,
-      sameSite: 'Lax',
+      sameSite: 'lax',
       maxAge: 60 * 1000 * 60 * 24 * 7,
     });
 
@@ -264,9 +266,10 @@ export const loginWithGithub = async (req, res, next) => {
       await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
 
       res.cookie('sid', sessionId, {
+        domain: '.safemystuff.store',
         httpOnly: true,
         signed: true,
-        sameSite: 'Lax',
+        sameSite: 'lax',
         maxAge: 60 * 1000 * 60 * 24 * 7,
       });
       return res.json({ message: 'logged in', user });
@@ -313,9 +316,10 @@ export const loginWithGithub = async (req, res, next) => {
     await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
 
     res.cookie('sid', sessionId, {
+      domain: '.safemystuff.store',
       httpOnly: true,
       signed: true,
-      sameSite: 'Lax',
+      sameSite: 'lax',
       maxAge: 60 * 1000 * 60 * 24 * 7,
     });
 
