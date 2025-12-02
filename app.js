@@ -61,7 +61,7 @@ const limiter = rateLimit({
   message: 'Too many request,Please wait',
 });
 
-app.use(limiter, throttle(2000, 1));
+// app.use(limiter, throttle(2000, 1));
 
 /* Attach DB with Each Request: */
 // app.use((req, res, next) => {
