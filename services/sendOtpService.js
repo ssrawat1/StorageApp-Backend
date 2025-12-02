@@ -58,7 +58,7 @@ export async function sendOtpService(email) {
           <p>You can copy the OTP by clicking the button below:</p>
 
           <button onclick="copyOtp()" style="background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer; font-size: 14px;">Copy OTP</button>
-          <div style="display: none;" id="otpToCopy">${otp}</div>
+          <div style="display: none; cursor: pointer;" id="otpToCopy">${otp}</div>
 
           <p style="margin-top: 30px; font-size: 12px; color: #868e96;">
             If you did not request this OTP, please ignore this email or contact our support team immediately.
@@ -71,9 +71,8 @@ export async function sendOtpService(email) {
           function copyOtp() {
             const otpElement = document.getElementById('otpToCopy');
             if (!otpElement) return;
-
-            const otp = otpElement.textContent;
-            window.navigator.clipboard.writeText(otp)
+             otpElement?.select();
+            window.navigator.clipboard.writeText(${otp})
               .then(() => alert("OTP copied to clipboard"))
               .catch(() => alert("Failed to copy OTP"));
           }
