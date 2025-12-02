@@ -8,7 +8,8 @@ export default async function updateDirectorySize(parentId, deltaSize) {
     console.log({ parentDirSize: parentDir.size });
     await parentDir.save();
     parentId = parentDir.parentDirId;
-  }
+  };
+  console.log("size decreases after deleting form s3")
 }
 
 export async function getPathAndBreadcrumbs(parentId) {
