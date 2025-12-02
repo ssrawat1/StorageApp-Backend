@@ -209,7 +209,7 @@ export const deleteFile = async (req, res, next) => {
     await file.deleteOne(); //file delete itself
 
     // Remove file from s3 bucket
-    const res = await deleteFileFromS3({ key: `${id}${file.extension}` });
+    await deleteFileFromS3({ key: `${id}${file.extension}` });
 
     /* Decreasing file size unless we don't reach at parent Directory */
     await updateDirectorySize(file.parentDirId, -file.size);
