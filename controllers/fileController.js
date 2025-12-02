@@ -140,14 +140,14 @@ export const getFile = async (req, res, next) => {
     const key = `${id}${fileData.extension}`;
     const filename = fileData.name;
     const action = req.query.action === 'download' ? 'download' : 'open';
- 
+
     // Allow client To Preview & Download Files in Browser
     const cloudFrontSignedUrl = createCloudFrontGetSignedUrl({ key, action, filename });
 
     // const singedUrl = await createFileSignedUrl({ key, action, filename });
 
     return res.redirect(cloudFrontSignedUrl);
-     
+
     // const filePath = resolve(import.meta.dirname, '../storage', `${id}${fileData.extension}`);
 
     // // Allow Client To Download the Files
@@ -194,13 +194,11 @@ export const renameFile = async (req, res, next) => {
 
 export const deleteFile = async (req, res, next) => {
   const { id } = req.params;
-  console.log({id})
   // Check if file exists and belong to the same user
   const file = await File.findOne({ _id: id, userId: req.user._id }).select(
     'extension size parentDirId'
   );
 
-  console.log(file)
 
   if (!file) {
     return res.status(404).json({ error: 'File not found!' });
@@ -212,7 +210,6 @@ export const deleteFile = async (req, res, next) => {
 
     // Remove file from s3 bucket
     const res = await deleteFileFromS3({ key: `${id}${file.extension}` });
-    console.log("s3 response:",res)
 
     /* Decreasing file size unless we don't reach at parent Directory */
     await updateDirectorySize(file.parentDirId, -file.size);
@@ -276,7 +273,7 @@ export const uploadInitiate = async (req, res, next) => {
       parentDirId,
       userId: req.user._id, // add so that we can easily check the user file
     });
-    
+
     const uploadSignedUrl = await createUploadSignedUrl({
       key: `${_id.toString()}${extension}`,
       contentType: fileContentType,
