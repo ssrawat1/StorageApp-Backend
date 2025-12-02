@@ -34,7 +34,7 @@ export async function sendOtpService(email) {
       { upsert: true, new: true, runValidators: true }
     );
 
-    // Improved Email Text
+    // Clean Email Text (NO button, NO JS)
     const mailOptions = {
       from: '"Safemystuff" <ssr911999@gmail.com>',
       to: email,
@@ -55,28 +55,12 @@ export async function sendOtpService(email) {
             </p>
           </div>
 
-          <p>You can copy the OTP by clicking the button below:</p>
-
-          <button onclick="copyOtp()" style="background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer; font-size: 14px;">Copy OTP</button>
-          <div style="display: none; cursor: pointer;" id="otpToCopy">${otp}</div>
-
           <p style="margin-top: 30px; font-size: 12px; color: #868e96;">
             If you did not request this OTP, please ignore this email or contact our support team immediately.
           </p>
 
           <p>Thank you,<br>The Safemystuff Team</p>
         </div>
-
-        <script>
-          function copyOtp() {
-            const otpElement = document.getElementById('otpToCopy');
-            if (!otpElement) return;
-             otpElement?.select();
-            window.navigator.clipboard.writeText(${otp})
-              .then(() => alert("OTP copied to clipboard"))
-              .catch(() => alert("Failed to copy OTP"));
-          }
-        </script>
       `,
     };
 
