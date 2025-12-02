@@ -25,53 +25,57 @@ function generateOtp() {
 export async function sendOtpService(email) {
   try {
     const otp = generateOtp();
-    const otpExpirationTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+    const otpExpirationTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Upsert OTP: Save or update the OTP and its creation time
+    // Upsert OTP
     await OTP.findOneAndUpdate(
       { email },
-      { otp, createdAt: new Date(), expiresAt: otpExpirationTime }, // Store expiration time
+      { otp, createdAt: new Date(), expiresAt: otpExpirationTime },
       { upsert: true, new: true, runValidators: true }
     );
 
-    // Email content with copy-paste functionality
+    // Improved Email Text
     const mailOptions = {
-      from: '"safemystuff.store" <ssr911999@gmail.com>', // Replace with your sender name and email
+      from: '"Safemystuff" <ssr911999@gmail.com>',
       to: email,
-      subject: 'Your OTP for safemystuff.store',
+      subject: 'Your OTP for Safemystuff.store',
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <h1 style="font-size: 24px; color: #007bff;">Verification Code</h1>
+
           <p>Hello,</p>
-          <p>Your OTP to access your Storage App account is:</p>
-          <div style="background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center;">
+          <p>Your One-Time Password (OTP) to access your Safemystuff account is:</p>
+
+          <div style="background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; text-align: center;">
             <p style="font-size: 28px; font-weight: bold; margin: 0; color: #28a745;">
               ${otp}
             </p>
             <p style="font-size: 12px; color: #6c757d; margin-top: 8px;">
-              This code is valid for 10 minutes. Please do not share it with anyone.
+              This code is valid for the next 10 minutes. Please do not share it with anyone.
             </p>
           </div>
-          <p>To copy the OTP, simply click on it.</p>
+
+          <p>You can copy the OTP by clicking the button below:</p>
+
           <button onclick="copyOtp()" style="background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 3px; cursor: pointer; font-size: 14px;">Copy OTP</button>
           <div style="display: none;" id="otpToCopy">${otp}</div>
 
           <p style="margin-top: 30px; font-size: 12px; color: #868e96;">
-            If you did not request this OTP, please ignore this email or contact support immediately.
+            If you did not request this OTP, please ignore this email or contact our support team immediately.
           </p>
-          <p>Thank you,<br>The Storage App Team</p>
+
+          <p>Thank you,<br>The Safemystuff Team</p>
         </div>
 
         <script>
           function copyOtp() {
             const otpElement = document.getElementById('otpToCopy');
-            const range = document.createRange();
-            range.selectNode(otpElement);
-            window.getSelection().removeAllRanges();
-            window.getSelection().addRange(range);
-            document.execCommand('copy');
-            window.getSelection().removeAllRanges();
-            alert('OTP copied to clipboard!');
+            if (!otpElement) return;
+
+            const otp = otpElement.textContent;
+            window.navigator.clipboard.writeText(otp)
+              .then(() => alert("OTP copied to clipboard"))
+              .catch(() => alert("Failed to copy OTP"));
           }
         </script>
       `,
@@ -79,13 +83,14 @@ export async function sendOtpService(email) {
 
     const info = await transporter.sendMail(mailOptions);
     console.log('Message sent:', info.messageId);
+
     return {
       success: true,
       message: `OTP sent successfully to ${email}. It is valid for 10 minutes.`,
     };
   } catch (error) {
     console.error('Error sending OTP:', error);
-    // More specific error handling can be added here
+
     if (error.code === 'EENVELOPE') {
       return { success: false, message: 'Invalid email address provided.' };
     }
