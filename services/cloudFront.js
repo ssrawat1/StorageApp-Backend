@@ -6,7 +6,7 @@ const keyPairId = process.env.CLOUDFRONT_KEY_PAIR_ID;
 const distributionName = process.env.CLOUDFRONT_DISTRIBUTION_URL;
 
 export const createCloudFrontGetSignedUrl = ({ key, action, filename }) => {
-  const dateLessThan = new Date(Date.now() + 1000 * 60 * 60).toString(); // valid for 1 hr only
+  const dateLessThan = new Date(Date.now() + 1000 * 60 * 60).toISOString(); // valid for 1 hr only
   console.log({ dateLessThan });
   const disposition = `${action === 'download' ? 'attachment' : 'inline'}; filename=${filename}`;
   const url = `${distributionName}/${key}?response-content-disposition=${encodeURIComponent(disposition)}`;
