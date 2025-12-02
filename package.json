@@ -25,7 +25,8 @@
     "dev": "node --watch --no-deprecation --env-file=.env app.js",
     "start": "node --no-deprecation --env-file=.env app.js",
     "setup": "node config/setUp.js",
-    "build": "npm i"
+    "build": "npm i",
+    "test": "node tempTesting.js"
   },
   "name": "storageapp",
   "version": "1.0.0",
