@@ -1,6 +1,12 @@
 import Razorpay from 'razorpay';
 import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js';
 
+console.log({
+  key_id: process.env.RZP_KEY_ID,
+  key_secret: process.env.RZP_SECRET,
+  webhook_secret: process.env.RZP_WEBHOOK_SECRET,
+});
+
 const rzpInstance = new Razorpay({
   key_id: process.env.RZP_KEY_ID,
   key_secret: process.env.RZP_SECRET,
@@ -21,6 +27,6 @@ export const createRzpSubscription = async ({ planId, userId }) => {
   }
 };
 
-export function verifyRzpWebhookSignature({ body, signature }) {
+export default function verifyWebhookSignature({ body, signature }) {
   return validateWebhookSignature(body, signature, process.env.RZP_WEBHOOK_SECRET);
 }
