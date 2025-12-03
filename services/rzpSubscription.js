@@ -1,12 +1,6 @@
 import Razorpay from 'razorpay';
 import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js';
 
-console.log({
-  key_id: process.env.RZP_KEY_ID,
-  key_secret: process.env.RZP_SECRET,
-  webhook_secret: process.env.RZP_WEBHOOK_SECRET,
-});
-
 const rzpInstance = new Razorpay({
   key_id: process.env.RZP_KEY_ID,
   key_secret: process.env.RZP_SECRET,
