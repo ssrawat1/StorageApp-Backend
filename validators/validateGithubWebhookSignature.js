@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { clearConfig } from 'dompurify';
 
 export const verifyGithubSignature = (secret, signature, rawBody) => {
   if (!secret || !signature) return false;
@@ -6,6 +7,7 @@ export const verifyGithubSignature = (secret, signature, rawBody) => {
   const realSignature = signature.replace('sha256=', '');
 
   const expectedSignature = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+  console.log({ realSignature, expectedSignature });
 
   try {
     return crypto.timingSafeEqual(Buffer.from(realSignature), Buffer.from(expectedSignature));

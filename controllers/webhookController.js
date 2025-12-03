@@ -49,6 +49,7 @@ export const handleGitHubWebhook = (req, res, next) => {
   const header = req.headers['x-hub-signature-256'];
   const payload = req.body;
   const isValidSignature = verifyGithubSignature(secret, header, payload);
+  console.log({ isValidSignature });
 
   if (!isValidSignature) {
     return res.status(401).json({ error: 'Invalid signature' });
