@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { clearConfig } from 'dompurify';
 
 export const verifyGithubSignature = (secret, signature, rawBody) => {
   if (!secret || !signature) return false;
