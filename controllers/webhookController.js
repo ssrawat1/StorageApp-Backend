@@ -1,6 +1,7 @@
 import verifyWebhookSignature from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
+import { spawn } from 'child_process';
 
 const CurrentPlans = {
   plan_RU8119E96NtaJs: { storageQuotaBytes: 2 * 1024 ** 4 },
@@ -20,8 +21,6 @@ export const handleRazorpayWebhook = async (req, res) => {
   if (!isVerified) {
     return res.send.json({ message: "You don't have permission" });
   }
-
-  
 
   if (req.body.event === 'subscription.activated') {
     console.log('subscription activated');
@@ -44,5 +43,27 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+export const handleGitHubWebhook = (req, res, next) => {
+  const bashChildProcess = spawn('bash', ['/home/ubuntu/deploy-frontend.sh']);
 
- 
+  bashChildProcess.stdout.on('data', (chunk) => {
+    process.stdout.write(chunk);
+  });
+
+  bashChildProcess.stderr.on('data', (chunk) => {
+    // trigger while getting error during executing the command
+    process.stderr.write(chunk);
+  });
+
+  bashChildProcess.on('close', (code) => {
+    if (code !== 0) return console.log('scripts are failed');
+    return console.log('scripts  have executed successfully');
+  });
+
+  bashChildProcess.on('error', (err) => {
+    // trigger while starting the process
+    console.log('Error while starting the process');
+    console.log(err);
+  });
+  res.status(200)
+};
