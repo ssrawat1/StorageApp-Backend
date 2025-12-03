@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.post('/razorpay', handleRazorpayWebhook);
 
-router.get('/github', handleGitHubWebhook);
+router.post('/github', handleGitHubWebhook);
 
 export default router;
