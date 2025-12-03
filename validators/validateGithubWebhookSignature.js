@@ -1,9 +1,15 @@
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 
-export const verifyGithubSignature = (secret, header, payload) => {
-  if (!header || !secret) return false;
-  const signature = header.split('=')[1];
-  const selfSignature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-  console.log({ signature, selfSignature });
-  return signature === selfSignature;
+export const verifyGithubSignature = (secret, signature, rawBody) => {
+  if (!secret || !signature) return false;
+
+  const realSignature = signature.replace('sha256=', '');
+
+  const expectedSignature = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(realSignature), Buffer.from(expectedSignature));
+  } catch {
+    return false;
+  }
 };

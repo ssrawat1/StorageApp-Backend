@@ -90,7 +90,7 @@ app.use('/file', checkAuth, fileRoutes); // checkAuth is route specific middlewa
 app.use(userRoutes);
 app.use('/subscriptions', checkAuth, rzpSubscriptionRoutes);
 app.use('/auth', authRoutes);
-app.use('/webhooks', webhookRoutes);
+app.use('/webhooks', express.raw({ type: 'application/json' }), webhookRoutes);
 
 app.post(
   '/csp-violation-report',
