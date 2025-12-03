@@ -45,6 +45,7 @@ export const handleRazorpayWebhook = async (req, res) => {
 
 export const handleGitHubWebhook = (req, res, next) => {
   console.log('Github Webhook Body:', req.body);
+  res.status(200).json({ message: 'Webhook received. Deployment started.' });
   const bashChildProcess = spawn('bash', ['/home/ubuntu/deploy-frontend.sh']);
 
   bashChildProcess.stdout.on('data', (chunk) => {
@@ -66,5 +67,4 @@ export const handleGitHubWebhook = (req, res, next) => {
     console.log('Error while starting the process');
     console.log(err);
   });
-  res.status(200);
 };
