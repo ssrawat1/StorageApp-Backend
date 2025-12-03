@@ -46,13 +46,18 @@ export const handleRazorpayWebhook = async (req, res) => {
 
 export const handleGitHubWebhook = (req, res, next) => {
   console.log('Github Webhook Body:', req.headers);
-  res.status(200).json({ message: 'Webhook received. Deployment started.' });
+  console.log('Request Body:', req.body);
 
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['X-Hub-Signature-256'];
   const payload = req.body;
   const isValidSignature = verifyGithubSignature(secret, header, payload);
   console.log({ isValidSignature });
+
+  if (!isValidSignature) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  res.status(200).json({ message: 'Webhook received. Deployment started.' });
 
   const bashChildProcess = spawn('bash', ['/home/ubuntu/deploy-frontend.sh']);
 
