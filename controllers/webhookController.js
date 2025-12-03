@@ -1,7 +1,8 @@
-import verifyWebhookSignature from '../services/rzpSubscription.js';
+import { verifyRzpWebhookSignature } from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
+import { verifyGithubSignature } from '../validators/verifyGithubWebhookSignature.js';
 
 const CurrentPlans = {
   plan_RU8119E96NtaJs: { storageQuotaBytes: 2 * 1024 ** 4 },
@@ -15,7 +16,7 @@ const CurrentPlans = {
 export const handleRazorpayWebhook = async (req, res) => {
   const signature = req.headers['x-razorpay-signature'];
 
-  const isVerified = verifyWebhookSignature({ body: JSON.stringify(req.body), signature });
+  const isVerified = verifyRzpWebhookSignature({ body: JSON.stringify(req.body), signature });
   console.log({ isVerified });
 
   if (!isVerified) {
@@ -46,6 +47,13 @@ export const handleRazorpayWebhook = async (req, res) => {
 export const handleGitHubWebhook = (req, res, next) => {
   console.log('Github Webhook Body:', req.headers);
   res.status(200).json({ message: 'Webhook received. Deployment started.' });
+
+  const secret = process.env.GITHUB_WEBHOOK_SECRET;
+  const header = req.headers['X-Hub-Signature-256']
+  const payload = req.body;
+  const isValidSignature = verifyGithubSignature(secret, header, payload);
+  console.log({ isValidSignature });
+
   const bashChildProcess = spawn('bash', ['/home/ubuntu/deploy-frontend.sh']);
 
   bashChildProcess.stdout.on('data', (chunk) => {
