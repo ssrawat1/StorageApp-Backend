@@ -12,7 +12,7 @@ import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
 import { throttle } from './middlewares/throttleMiddleware.js';
 import webhookRoutes from './routes/webhookRoutes.js';
- 
+
 /* Connecting with mongodb */
 await connectDB();
 
@@ -71,7 +71,12 @@ const limiter = rateLimit({
 // });
 
 app.get('/', (req, res) => {
-  return res.status(200).json({ message: 'Hello, from storage app' });
+  return res.status(200).json({
+    service: 'SafeMyStuff API',
+    status: 'ok',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
 });
 
 /* Testing End Point: */
