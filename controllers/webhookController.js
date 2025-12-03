@@ -2,7 +2,7 @@ import { verifyRzpWebhookSignature } from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
-import { verifyGithubSignature } from '../validators/verifyGithubWebhookSignature.js';
+import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 
 const CurrentPlans = {
   plan_RU8119E96NtaJs: { storageQuotaBytes: 2 * 1024 ** 4 },
@@ -49,7 +49,7 @@ export const handleGitHubWebhook = (req, res, next) => {
   res.status(200).json({ message: 'Webhook received. Deployment started.' });
 
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
-  const header = req.headers['X-Hub-Signature-256']
+  const header = req.headers['X-Hub-Signature-256'];
   const payload = req.body;
   const isValidSignature = verifyGithubSignature(secret, header, payload);
   console.log({ isValidSignature });

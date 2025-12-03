@@ -27,6 +27,6 @@ export const createRzpSubscription = async ({ planId, userId }) => {
   }
 };
 
-export default function verifyWebhookSignature({ body, signature }) {
+export function verifyRzpWebhookSignature({ body, signature }) {
   return validateWebhookSignature(body, signature, process.env.RZP_WEBHOOK_SECRET);
 }
