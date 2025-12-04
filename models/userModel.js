@@ -67,6 +67,9 @@ userSchema.pre('save', async function (next) {
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
   console.log({ candidatePassword, realPwd: this.password, data: this });
+  if (!this.password) {
+    return res.status(404).json({ error: 'invalid credentials' });
+  }
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
