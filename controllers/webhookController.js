@@ -5,12 +5,12 @@ import { spawn } from 'child_process';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 
 const CurrentPlans = {
-  plan_RU8119E96NtaJs: { storageQuotaBytes: 2 * 1024 ** 4 },
-  plan_RUAZfzDby6GfZw: { storageQuotaBytes: 5 * 1024 ** 4 },
-  plan_RUAZxJ9j4nHSC4: { storageQuotaBytes: 10 * 1024 ** 4 },
-  plan_RUAakegDqZirNq: { storageQuotaBytes: 2 * 1024 ** 4 },
-  plan_RUAaYUVYz53nmZ: { storageQuotaBytes: 5 * 1024 ** 4 },
-  plan_RUAakegDqZirNq: { storageQuotaBytes: 10 * 1024 ** 4 },
+  plan_RTzvPDYfL51wb4: { storageQuotaBytes: 2 * 1024 ** 4 },
+  plan_RTzwVP4frFM6eC: { storageQuotaBytes: 5 * 1024 ** 4 },
+  plan_RTzxIGdOeSbTXg: { storageQuotaBytes: 10 * 1024 ** 4 },
+  plan_RTzu1I9F9pAQ52: { storageQuotaBytes: 2 * 1024 ** 4 },
+  plan_RTzsZJCddOmQQc: { storageQuotaBytes: 5 * 1024 ** 4 },
+  plan_RTzki62AqExECc: { storageQuotaBytes: 10 * 1024 ** 4 },
 };
 
 export const handleRazorpayWebhook = async (req, res) => {
