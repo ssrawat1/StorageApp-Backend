@@ -51,7 +51,7 @@ export const handleRazorpayWebhook = async (req, res) => {
 export const handleGitHubWebhook = (req, res, next) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
-  const payload = Buffer.from(JSON.stringify(req.body), 'utf-8');
+  const payload = JSON.stringify(req.body);
   console.log({ header, secret });
 
   const isValidSignature = verifyGithubSignature(secret, header, payload);
