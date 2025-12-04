@@ -17,14 +17,14 @@ export const handleRazorpayWebhook = async (req, res) => {
   const signature = req.headers['x-razorpay-signature'];
 
   if (!signature || !req.body) {
-    return res.status(401).json({ error: "You don't have permission" });
+    return res.status(403).json({ error: "You don't have permission" });
   }
 
   const isVerified = verifyRzpWebhookSignature({ body: JSON.stringify(req.body), signature });
   console.log({ isVerified });
 
   if (!isVerified) {
-    return res.status(401).json({ error: "You don't have permission" });
+    return res.status(403).json({ error: "You don't have permission" });
   }
 
   if (req.body.event === 'subscription.activated') {
@@ -58,7 +58,7 @@ export const handleGitHubWebhook = (req, res, next) => {
   console.log({ isValidSignature });
 
   if (!isValidSignature) {
-    return res.status(401).json({ error: "You don't have permission" });
+    return res.status(403).json({ error: "You don't have permission" });
   }
   res.status(200).json({ message: 'Webhook received. Deployment started.' });
 
