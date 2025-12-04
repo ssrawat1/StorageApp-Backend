@@ -43,7 +43,7 @@ const userSchema = new Schema(
     },
     role: {
       type: String,
-      enum: ['Admin', 'Manager', 'User',"Owner"],
+      enum: ['Admin', 'Manager', 'User', 'Owner'],
       default: 'User',
     },
     storageLimit: {
@@ -66,6 +66,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  console.log({ candidatePassword, realPwd: this.password });
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
