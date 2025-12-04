@@ -112,7 +112,7 @@ export const login = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(404).json({ error: 'invalid credentials' });
+    return res.status(404).json({ error: 'Invalid credentials' });
   }
 
   if (user.isDeleted) {
@@ -121,13 +121,17 @@ export const login = async (req, res) => {
       .json({ error: 'Your account has been deleted. Contact the app owner to recover.' });
   }
 
-  console.log({user})
+  if (user.provider) {
+    return res.status(409).json({
+      error: `You already logged in with ${user.provider}. Please continue with ${user.provider}.`,
+    });
+  }
 
   // const isPasswordValid = await bcrypt.compare(password, user.password);
   const isPasswordValid = await user.comparePassword(password);
 
   if (!isPasswordValid) {
-    return res.status(404).json({ error: 'invalid credentials' });
+    return res.status(404).json({ error: 'Invalid credentials' });
   }
 
   // const allSession = await Session.find({ userId: user._id });
