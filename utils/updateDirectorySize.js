@@ -13,10 +13,13 @@ export default async function updateDirectorySize(parentId, deltaSize) {
 
 export async function getPathAndBreadcrumbs(parentId) {
   if (!parentId) return [];
+  console.log({ parentId });
 
   const parentDir = await Directory.findById(parentId)
     .populate('path', '_id name') // populate ID + name
     .lean();
+
+  console.log({ parentDir });
 
   if (!parentDir) return [];
 
