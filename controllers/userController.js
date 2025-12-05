@@ -114,7 +114,7 @@ export const login = async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(404).json({ error: 'Invalid credentials' });
+    return res.status(404).json({ error: 'No account found with this email. Please create an account first.' });
   }
 
   if (user.isDeleted) {
