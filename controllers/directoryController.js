@@ -23,26 +23,28 @@ export const getDirectory = async (req, res) => {
 
   const files = await File.find({ parentDirId: _id }).lean();
   const directories = await Directory.find({ parentDirId: _id }).lean();
+  let breadcrumbPath = [];
 
   return res.status(200).json({
     ...directoryData,
 
     files: await Promise.all(
       files.map(async (file) => {
-        const {path } = await getPathAndBreadcrumbs(file.parentDirId);
+        const { path } = await getPathAndBreadcrumbs(file.parentDirId);
         const fullPath = path + '/' + file.name;
 
         return {
           ...file,
           id: file._id,
           path: fullPath,
-         };
+        };
       })
     ),
 
     directories: await Promise.all(
       directories.map(async (dir) => {
         const { breadcrumbs, path } = await getPathAndBreadcrumbs(dir.parentDirId);
+        breadcrumbPath.push(...breadcrumbs);
         const fullPath = path + '/' + dir.name;
 
         const { totalFiles, totalFolders, totalItems } = await getFolderStatsRecursive(dir._id);
@@ -51,13 +53,13 @@ export const getDirectory = async (req, res) => {
           ...dir,
           id: dir._id,
           path: fullPath,
-          breadcrumb: breadcrumbs,
           totalFiles,
           totalFolders,
           totalItems,
         };
       })
     ),
+    breadcrumb: breadcrumbPath,
   });
 };
 
