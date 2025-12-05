@@ -18,9 +18,7 @@ export const register = async (req, res, next) => {
   const validateData = validateRegisterSchema(cleanInput);
   console.log('Register Validate Data:', validateData);
   if (validateData.fieldErrors) {
-    return res
-      .status(403)
-      .json({ error: validateData.fieldErrors[0] || 'Invalid input. Please enter valid details.' });
+    return res.status(403).json({ error: 'Invalid input. Please enter valid details.' });
   }
   const { name, email, password, otp } = validateData;
   console.log(otp);
@@ -107,14 +105,16 @@ export const login = async (req, res) => {
   console.log('Email validate Data:', validateData);
 
   if (validateData.fieldErrors) {
-    return res.status(400).json({ error: 'invalid credentials' });
+    return res.status(400).json({ error: 'Invalid credentials' });
   }
 
   let { email, password } = validateData;
   const user = await User.findOne({ email });
 
   if (!user) {
-    return res.status(404).json({ error: 'No account found with this email. Please create an account first.' });
+    return res
+      .status(404)
+      .json({ error: 'No account found with this email. Please create an account first.' });
   }
 
   if (user.isDeleted) {
