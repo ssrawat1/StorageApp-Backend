@@ -43,8 +43,7 @@ export const getDirectory = async (req, res) => {
 
     directories: await Promise.all(
       directories.map(async (dir) => {
-        const { breadcrumbs, path } = await getPathAndBreadcrumbs(dir.parentDirId);
-        breadcrumbPath = breadcrumbs;
+        const { path } = await getPathAndBreadcrumbs(dir.parentDirId);
         const fullPath = path + '/' + dir.name;
 
         const { totalFiles, totalFolders, totalItems } = await getFolderStatsRecursive(dir._id);
@@ -59,7 +58,7 @@ export const getDirectory = async (req, res) => {
         };
       })
     ),
-    breadcrumbPath,
+    breadcrumbPath: await getFolderStatsRecursive(_id),
   });
 };
 
