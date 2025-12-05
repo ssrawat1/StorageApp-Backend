@@ -103,7 +103,7 @@ app.post(
 );
 
 app.use((err, req, res, next) => {
-  console.log({ fromErrorRouterHandler: err });
+  console.log({ fromErrorRouterHandler: err, errorCode: err.code });
   // res.json(err);
   res.status(err.status || 500).json({ error: 'Something went wrong!' });
 });
