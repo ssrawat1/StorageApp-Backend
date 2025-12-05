@@ -5,6 +5,7 @@ import { connectDB } from './db.js';
 
 await connectDB();
 const client = mongoose.connection.getClient();
+console.log({client})
 try {
   const db = mongoose.connection.db;
   // create dbSchema so that we don't need to write  await db.command() again and again
