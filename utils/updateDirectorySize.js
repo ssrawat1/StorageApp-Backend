@@ -24,7 +24,10 @@ export async function getPathAndBreadcrumbs(parentId) {
 
   // Adding parentDir Id and its name
   for (const { name, _id } of parentDir.path) {
-    breadcrumbs.push(name);
+    breadcrumbs.push({
+      name: name,
+      id: _id,
+    });
   }
 
   // Adding current Directory itself
