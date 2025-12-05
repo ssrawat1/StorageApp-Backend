@@ -23,8 +23,8 @@
   },
   "scripts": {
     "dev": "node --watch --no-deprecation --env-file=.env app.js",
-    "start": "node --no-deprecation --env-file=.env app.js",
-    "setup": "node config/setUp.js",
+    "start": "node --watch --no-deprecation --env-file=.env app.js",
+    "setup": "node --env-file=.env config/setUp.js",
     "build": "npm i",
     "test": "node tempTesting.js"
   },
