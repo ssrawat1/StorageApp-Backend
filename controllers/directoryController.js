@@ -59,7 +59,7 @@ export const getDirectory = async (req, res) => {
         };
       })
     ),
-    breadcrumb: breadcrumbPath,
+    breadcrumbPath,
   });
 };
 
