@@ -103,8 +103,15 @@ app.post(
 );
 
 app.use((err, req, res, next) => {
-  console.log({ fromErrorRouterHandler: err, errorCode: err.code });
   // res.json(err);
+  if (err.code && err.code === 11000) {
+    return res.status(409).json({
+      error: 'User already exists',
+      message:
+        'A user with this email address already exists. Please try logging in or use a different email.',
+    });
+  }
+
   res.status(err.status || 500).json({ error: 'Something went wrong!' });
 });
 
