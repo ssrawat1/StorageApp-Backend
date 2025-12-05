@@ -23,7 +23,8 @@ export const getDirectory = async (req, res) => {
 
   const files = await File.find({ parentDirId: _id }).lean();
   const directories = await Directory.find({ parentDirId: _id }).lean();
-  let breadcrumbPath = [];
+
+  let { breadcrumbs } = await getPathAndBreadcrumbs(_id);
 
   return res.status(200).json({
     ...directoryData,
@@ -58,7 +59,7 @@ export const getDirectory = async (req, res) => {
         };
       })
     ),
-    breadcrumbPath: await getFolderStatsRecursive(_id),
+    breadcrumbPath: breadcrumbs,
   });
 };
 
