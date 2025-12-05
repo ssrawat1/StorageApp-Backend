@@ -29,15 +29,14 @@ export const getDirectory = async (req, res) => {
 
     files: await Promise.all(
       files.map(async (file) => {
-        const { breadcrumbs, path } = await getPathAndBreadcrumbs(file.parentDirId);
+        const {path } = await getPathAndBreadcrumbs(file.parentDirId);
         const fullPath = path + '/' + file.name;
 
         return {
           ...file,
           id: file._id,
           path: fullPath,
-          breadcrumb: breadcrumbs,
-        };
+         };
       })
     ),
 
