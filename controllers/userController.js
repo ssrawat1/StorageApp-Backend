@@ -18,7 +18,9 @@ export const register = async (req, res, next) => {
   const validateData = validateRegisterSchema(cleanInput);
   console.log('Register Validate Data:', validateData);
   if (validateData.fieldErrors) {
-    return res.status(403).json({ error: 'Invalid input. Please enter valid details.' });
+    return res
+      .status(403)
+      .json({ error: validateData.fieldErrors[0] || 'Invalid input. Please enter valid details.' });
   }
   const { name, email, password, otp } = validateData;
   console.log(otp);
