@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 export async function connectDB() {
-  console.log({url:process.env.MONGO_DB_URL})
-  console.log({redisURL:process.env.REDIS_URL})
   try {
     await mongoose.connect(process.env.MONGO_DB_URL);
     console.log('Database Connected');

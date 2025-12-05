@@ -5,7 +5,6 @@ import { connectDB } from './db.js';
 
 await connectDB();
 const client = mongoose.connection.getClient();
-console.log({client})
 try {
   const db = mongoose.connection.db;
   // create dbSchema so that we don't need to write  await db.command() again and again
@@ -57,7 +56,7 @@ try {
             },
             role: {
               bsonType: 'string',
-              enum: ['Admin', 'Manager', 'User',"Owner"],
+              enum: ['Admin', 'Manager', 'User', 'Owner'],
               description: 'Must be one of: "Admin", "Manager", or "User".',
             },
             storageLimit: {
@@ -86,7 +85,16 @@ try {
       validator: {
         $jsonSchema: {
           bsonType: 'object',
-          required: ['_id', 'name', 'parentDirId', 'userId', 'updatedAt', 'createdAt', 'size',"path"],
+          required: [
+            '_id',
+            'name',
+            'parentDirId',
+            'userId',
+            'updatedAt',
+            'createdAt',
+            'size',
+            'path',
+          ],
           properties: {
             _id: {
               bsonType: 'objectId',
@@ -140,7 +148,7 @@ try {
             'userId',
             'createdAt',
             'updatedAt',
-            "isUploading"
+            'isUploading',
           ],
           properties: {
             _id: {
