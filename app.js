@@ -106,8 +106,7 @@ app.use((err, req, res, next) => {
   // res.json(err);
   if (err.code && err.code === 11000) {
     return res.status(409).json({
-      error: 'User already exists',
-      message:
+      error:
         'A user with this email address already exists. Please try logging in or use a different email.',
     });
   }
