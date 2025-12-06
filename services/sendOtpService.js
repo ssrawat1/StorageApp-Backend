@@ -39,59 +39,71 @@ export async function sendOtpService(email) {
       to: email,
       subject: 'Your Safemystuff verification code',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; color: #333;">
-          <h2 style="text-align: center; margin-bottom: 10px; font-size: 22px; color: #1E3A8A;">
-            Your Safemystuff verification code
-          </h2>
+        <div style="font-family: Arial, sans-serif; background: #ffffff; padding: 24px;">
+          <div style="max-width: 600px; margin: 0 auto;">
 
-          <p style="text-align: center; margin-top: 0; margin-bottom: 18px; color: #475569; font-size: 14px;">
-            Use the code below to verify your email address. The code expires in 10 minutes.
-          </p>
-
-          <div
-            style="
-              width: 260px;
-              margin: 20px auto;
-              padding: 25px 0;
-              text-align: center;
-              background: #f4f6f8;
+            <!-- Solid lighted box -->
+            <div style="
+              background: #f8fafc;
               border-radius: 12px;
-            "
-          >
-            <span style="
-              display: block;
-              font-family: 'Courier New', Courier, monospace;
-              font-size: 42px;
-              font-weight: 700;
-              letter-spacing: 8px;
-              color: #2563EB;
-              letter-spacing: 6px;
-              line-height: 1;
-              margin-bottom: 8px;
+              padding: 28px;
+              border: 1px solid #e6edf3;
+              box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+              text-align: center;
             ">
-              ${otp}
-            </span>
-            <span style="
-              display: block;
-              text-align:center;
-              font-size: 12px;
-              color: #6b7280;
-              margin-top: 10px;
-            ">
-              Do not share this with anyone.
-            </span>
+              <h2 style="margin: 0 0 10px; font-size: 22px; color: #1E3A8A;">
+                Your Safemystuff verification code
+              </h2>
+
+              <p style="margin: 0 0 18px; color: #475569; font-size: 14px;">
+                Use the code below to verify your email address. The code expires in 10 minutes.
+              </p>
+
+              <div style="
+                width: 260px;
+                margin: 20px auto;
+                padding: 25px 0;
+                text-align: center;
+                background: #ffffff;
+                border-radius: 12px;
+                border: 1px solid #e6edf3;
+              ">
+                <span style="
+                  display: block;
+                  font-family: 'Courier New', Courier, monospace;
+                  font-size: 42px;
+                  font-weight: 700;
+                  color: #2563EB;
+                  letter-spacing: 6px;
+                  line-height: 1;
+                  margin-bottom: 8px;
+                ">
+                  ${otp}
+                </span>
+                <span style="
+                  display: block;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #6b7280;
+                  margin-top: 10px;
+                ">
+                  Do not share this with anyone.
+                </span>
+              </div>
+
+              <p style="text-align: center; margin-top: 24px; font-size: 12px; color: #888; line-height: 20px;">
+                If you did not request this OTP, please ignore this email.<br>
+                If you need assistance, reply to this email and I will respond.
+              </p>
+
+              <p style="text-align: center; margin-top: 18px; font-size: 13px; color: #333;">
+                Thank you,<br />
+                <strong>Sanjay Singh Rawat</strong><br />
+                Safemystuff
+              </p>
+            </div>
+
           </div>
-
-          <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888; line-height: 20px;">
-            If you did not request this OTP, please ignore this email.<br>
-            If you need assistance, reply to this email and I will respond.
-          </p>
-
-          <p style="text-align: center; margin-top: 20px;">
-            Thank you,<br />
-            <strong>Sanjay Singh Rawat</strong><br />
-            Safemystuff
-          </p>
         </div>
       `,
     };
