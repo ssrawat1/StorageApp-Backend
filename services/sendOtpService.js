@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { OTP } from '../models/otpModel.js';
 
-// Nodemailer transporter setup
+// Nodemailer transporter setup (unchanged)
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
@@ -34,32 +34,64 @@ export async function sendOtpService(email) {
       { upsert: true, new: true, runValidators: true }
     );
 
-    // Clean Email Text (NO button, NO JS)
+    // Mail options with inline image (CID) and centered, larger OTP box
     const mailOptions = {
       from: '"Safemystuff" <ssr911999@gmail.com>',
       to: email,
-      subject: 'Your OTP for Safemystuff.store',
+      subject: 'Your Safemystuff verification code',
       html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h1 style="font-size: 24px; color: #007bff;">Verification Code</h1>
+        <div style="font-family: Arial, sans-serif; color: #111827; line-height: 1.5; padding: 24px;">
+          <!-- Container -->
+          <div style="max-width: 600px; margin: 0 auto; text-align: center;">
+            <h2 style="margin: 0 0 8px; font-size: 20px; color: #0f172a;">
+              Your Safemystuff verification code
+            </h2>
 
-          <p>Hello,</p>
-          <p>Your One-Time Password (OTP) to access your Safemystuff account is:</p>
-
-          <div style="background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 10px 0; text-align: center;">
-            <p style="font-size: 28px; font-weight: bold; margin: 0; color: #28a745;">
-              ${otp}
+            <p style="margin: 0 0 18px; color: #475569; font-size: 14px;">
+              Use the code below to verify your email address. The code expires in 10 minutes.
             </p>
-            <p style="font-size: 12px; color: #6c757d; margin-top: 8px;">
-              This code is valid for the next 10 minutes. Please do not share it with anyone.
+
+            <!-- Centered OTP box -->
+            <div style="
+              display: inline-block;
+              min-width: 280px;
+              max-width: 360px;
+              padding: 18px 24px;
+              margin: 0 auto;
+              border-radius: 10px;
+              background: #f8fafc;
+              border: 1px solid #e6edf3;
+              text-align: center;
+            ">
+              <p style="margin: 0 0 6px; font-size: 12px; color: #475569;">
+                Your verification code
+              </p>
+
+              <p style="
+                margin: 0;
+                font-size: 36px;
+                font-weight: 700;
+                color: #0b1220;
+                letter-spacing: 6px;
+              ">
+                ${otp}
+              </p>
+
+              <p style="margin-top: 10px; font-size: 12px; color: #6b7280;">
+                Expires in 10 minutes — do not share this with anyone.
+              </p>
+            </div>
+
+            <!-- Small footer -->
+            <p style="margin-top: 22px; font-size: 12px; color: #94a3b8;">
+              If you did not request this code, you can safely ignore this email.
+            </p>
+
+            <p style="margin-top: 8px; font-size: 13px; color: #475569;">
+              Thank you,<br>
+              <strong>Safemystuff</strong>
             </p>
           </div>
-
-          <p style="margin-top: 30px; font-size: 12px; color: #868e96;">
-            If you did not request this OTP, please ignore this email. If you need assistance, reply to this email and I will respond.
-          </p>
-
-          <p>Thank you,<br>Sanjay Singh Rawat<br>Safemystuff</p>
         </div>
       `,
     };
