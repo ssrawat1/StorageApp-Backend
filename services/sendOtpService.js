@@ -37,7 +37,7 @@ export async function sendOtpService(email) {
     const mailOptions = {
       from: '"Safemystuff" <ssr911999@gmail.com>',
       to: email,
-      subject: 'Your Safemystuff verification code',
+      subject: 'Safemystuff: Your Email Verification Code',
       html: `
         <div style="font-family: Arial, sans-serif; background: #ffffff; padding: 24px;">
           <div style="max-width: 600px; margin: 0 auto;">
