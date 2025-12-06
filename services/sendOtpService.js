@@ -40,7 +40,7 @@ export async function sendOtpService(email) {
       subject: 'Your Safemystuff verification code',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; color: #333;">
-          <h2 style="text-align: center; margin-bottom: 10px; font-size: 22px; color: #0f172a;">
+          <h2 style="text-align: center; margin-bottom: 10px; font-size: 22px; color: #1E3A8A;">
             Your Safemystuff verification code
           </h2>
 
@@ -64,7 +64,7 @@ export async function sendOtpService(email) {
               font-size: 42px;
               font-weight: 700;
               letter-spacing: 8px;
-              color: #1D4ED8;
+              color: #2563EB;
               letter-spacing: 6px;
               line-height: 1;
               margin-bottom: 8px;
