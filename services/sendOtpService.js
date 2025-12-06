@@ -50,7 +50,7 @@ export async function sendOtpService(email) {
 
           <div
             style="
-              width: 220px;
+              width: 260px;
               margin: 20px auto;
               padding: 25px 0;
               text-align: center;
@@ -73,10 +73,10 @@ export async function sendOtpService(email) {
             </span>
             <span style="
               display: block;
+              text-align:center;
               font-size: 12px;
               color: #6b7280;
-              line-height: 1.2;
-              margin-top: 6px;
+              margin-top: 10px;
             ">
               Do not share this with anyone.
             </span>
