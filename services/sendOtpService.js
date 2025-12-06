@@ -46,11 +46,9 @@ export async function sendOtpService(email) {
             <h2 style="margin: 0 0 8px; font-size: 20px; color: #0f172a;">
               Your Safemystuff verification code
             </h2>
-
             <p style="margin: 0 0 18px; color: #475569; font-size: 14px;">
               Use the code below to verify your email address. The code expires in 10 minutes.
             </p>
-
             <!-- Centered OTP box -->
             <div style="
               display: inline-block;
@@ -66,7 +64,6 @@ export async function sendOtpService(email) {
               <p style="margin: 0 0 6px; font-size: 12px; color: #475569;">
                 Your verification code
               </p>
-
               <p style="
                 margin: 0;
                 font-size: 36px;
@@ -76,21 +73,15 @@ export async function sendOtpService(email) {
               ">
                 ${otp}
               </p>
-
               <p style="margin-top: 10px; font-size: 12px; color: #6b7280;">
                 Expires in 10 minutes — do not share this with anyone.
               </p>
             </div>
-
             <!-- Small footer -->
             <p style="margin-top: 22px; font-size: 12px; color: #94a3b8;">
-              If you did not request this code, you can safely ignore this email.
+             If you did not request this OTP, please ignore this email. If you need assistance, reply to this email and I will respond.
             </p>
-
-            <p style="margin-top: 8px; font-size: 13px; color: #475569;">
-              Thank you,<br>
-              <strong>Safemystuff</strong>
-            </p>
+            <p>Thank you,<br>Sanjay Singh Rawat<br><strong>Safemystuff</strong></p>
           </div>
         </div>
       `,
