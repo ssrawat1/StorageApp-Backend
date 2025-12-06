@@ -63,7 +63,7 @@ export async function sendOtpService(email) {
           >
             ${otp}
             <br>
-            <span>Do not share this with anyone.</span>
+            <span style="text-align: center; margin-top: 30px; font-size: 12px; color: #888; line-height: 20px;>Do not share this with anyone.</span>
           </div>
 
           <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888; line-height: 20px;">
