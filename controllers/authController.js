@@ -15,7 +15,7 @@ export const sendOtp = async (req, res, next) => {
     if (!resData.success) {
       return res.status(404).json({
         success: false,
-        message: 'Email does not exist.',
+        error: 'Email does not exist.',
       });
     }
     res.status(201).json(resData);
