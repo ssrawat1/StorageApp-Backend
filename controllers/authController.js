@@ -12,6 +12,12 @@ export const sendOtp = async (req, res, next) => {
   try {
     const resData = await sendOtpService(email);
     console.log({ resData });
+    if (!resData.success) {
+      return res.status(404).json({
+        success: false,
+        message: 'Email does not exist.',
+      });
+    }
     res.status(201).json(resData);
   } catch (error) {
     next(error);
