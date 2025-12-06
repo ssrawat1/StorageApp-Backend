@@ -39,57 +39,61 @@ export async function sendOtpService(email) {
       to: email,
       subject: 'Your Safemystuff verification code',
       html: `
-  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; color: #333;">
-    
-    <h2 style="text-align: center; margin-bottom: 10px; font-size: 22px; color: #0f172a;">
-      Your Safemystuff verification code
-    </h2>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 24px; color: #333;">
+          <h2 style="text-align: center; margin-bottom: 10px; font-size: 22px; color: #0f172a;">
+            Your Safemystuff verification code
+          </h2>
 
-    <p style="text-align: center; margin-top: 0; margin-bottom: 18px; color: #475569; font-size: 14px;">
-      Use the code below to verify your email address. The code expires in 10 minutes.
-    </p>
+          <p style="text-align: center; margin-top: 0; margin-bottom: 18px; color: #475569; font-size: 14px;">
+            Use the code below to verify your email address. The code expires in 10 minutes.
+          </p>
 
-    <div
-      style="
-        width: 220px;
-        margin: 20px auto;
-        padding: 25px 0;
-        text-align: center;
-        background: #f4f6f8;
-        border-radius: 12px;
-        font-size: 36px;
-        font-weight: bold;
-        letter-spacing: 8px;
-      "
-    >
-      ${otp}<br><span style="
-        text-align: center;
-        margin-top: 30px;
-        font-size: 12px;
-        color: #888;
-        line-height: 20px;
-      ">Do not share this with anyone.</span>
-    </div>
-    <p
-      style="
-        text-align: center;
-        margin-top: 30px;
-        font-size: 12px;
-        color: #888;
-        line-height: 20px;
-      "
-    >
-      If you did not request this OTP, please ignore this email.<br>
-      If you need assistance, reply to this email and I will respond.
-    </p>
+          <div
+            style="
+              width: 220px;
+              margin: 20px auto;
+              padding: 25px 0;
+              text-align: center;
+              background: #f4f6f8;
+              border-radius: 12px;
+              letter-spacing: 8px;
+            "
+          >
+            <span style="
+              display: block;
+              font-family: 'Courier New', Courier, monospace;
+              font-size: 42px;
+              font-weight: 700;
+              color: #0b1220;
+              letter-spacing: 6px;
+              line-height: 1;
+              margin-bottom: 8px;
+            ">
+              ${otp}
+            </span>
+            <span style="
+              display: block;
+              font-size: 12px;
+              color: #6b7280;
+              line-height: 1.2;
+              margin-top: 6px;
+            ">
+              Do not share this with anyone.
+            </span>
+          </div>
 
-    <p style="text-align: center; margin-top: 20px;">
-      Thank you,<br />
-      <strong>Sanjay Singh Rawat</strong><br />
-      Safemystuff
-    </p>
-  </div>
-`,
+          <p style="text-align: center; margin-top: 30px; font-size: 12px; color: #888; line-height: 20px;">
+            If you did not request this OTP, please ignore this email.<br>
+            If you need assistance, reply to this email and I will respond.
+          </p>
+
+          <p style="text-align: center; margin-top: 20px;">
+            Thank you,<br />
+            <strong>Sanjay Singh Rawat</strong><br />
+            Safemystuff
+          </p>
+        </div>
+      `,
     };
 
     const info = await transporter.sendMail(mailOptions);
