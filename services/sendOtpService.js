@@ -56,7 +56,6 @@ export async function sendOtpService(email) {
               text-align: center;
               background: #f4f6f8;
               border-radius: 12px;
-              letter-spacing: 8px;
             "
           >
             <span style="
@@ -64,7 +63,8 @@ export async function sendOtpService(email) {
               font-family: 'Courier New', Courier, monospace;
               font-size: 42px;
               font-weight: 700;
-              color: #0b1220;
+              letter-spacing: 8px;
+              color: #1D4ED8;
               letter-spacing: 6px;
               line-height: 1;
               margin-bottom: 8px;
