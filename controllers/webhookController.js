@@ -66,11 +66,11 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
 
   // Respond to GitHub immediately
-   res.status(200).json({
+  res.status(200).json({
     message: 'Webhook received. Deployment started. 🚀',
   });
 
-  // ---- RUN SCRIPT ------------------------------------------
+  // ---- DEPLOYMENT SCRIPT RUNS ASYNC (after response) ----
 
   const scriptPath = '/home/ubuntu/deploy-frontend.sh';
 
@@ -86,17 +86,16 @@ export const handleGitHubWebhook = (req, res) => {
   });
 
   // Script finished
-  child.on('close', (code) => {
-    if (code === 0) {
-      console.log('🎉 Deployment completed successfully!');
-    } else {
-      console.log(`❌ Deployment script exited with code ${code}`);
-    }
+  bashChildProcess.on('close', (code) => {
+    console.log(
+      code === 0
+        ? '🎉 Deployment completed successfully!'
+        : `❌ Deployment failed with code ${code}`
+    );
   });
 
   // Script failed to start
-  child.on('error', (err) => {
-    console.log('🔥 Failed to start deployment script:');
-    console.error(err);
+  bashChildProcess.on('error', (err) => {
+    console.log('🔥 Failed to start deployment script', err);
   });
 };
