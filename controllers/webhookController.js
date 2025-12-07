@@ -48,7 +48,7 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-export const handleGitHubWebhook = (req, res, next) => {
+export const handleGitHubWebhook = (req, res) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
   const payload = JSON.stringify(req.body);
@@ -66,7 +66,7 @@ export const handleGitHubWebhook = (req, res, next) => {
   console.log('✅ Webhook verified. Starting deployment...');
 
   // Respond to GitHub immediately
-  res.status(200).json({
+   res.status(200).json({
     message: 'Webhook received. Deployment started. 🚀',
   });
 
