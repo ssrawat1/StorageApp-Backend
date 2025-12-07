@@ -52,35 +52,51 @@ export const handleGitHubWebhook = (req, res, next) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
   const payload = JSON.stringify(req.body);
-  console.log({ header, secret });
+  console.log('🔐 Incoming GitHub Webhook...');
 
   const isValidSignature = verifyGithubSignature(secret, header, payload);
   console.log({ isValidSignature });
 
   if (!isValidSignature) {
-    return res.status(403).json({ error: "You don't have permission" });
+    console.log('❌ Invalid webhook signature! Unauthorized request.');
+    return res.status(403).json({
+      error: 'Invalid signature. Unauthorized request.',
+    });
   }
-  res.status(200).json({ message: 'Webhook received. Deployment started.' });
+  console.log('✅ Webhook verified. Starting deployment...');
 
-  const bashChildProcess = spawn('bash', ['/home/ubuntu/deploy-frontend.sh']);
-
-  bashChildProcess.stdout.on('data', (chunk) => {
-    process.stdout.write(chunk);
+  // Respond to GitHub immediately
+  res.status(200).json({
+    message: 'Webhook received. Deployment started. 🚀',
   });
 
-  bashChildProcess.stderr.on('data', (chunk) => {
-    // trigger while getting error during executing the command
-    process.stderr.write(chunk);
+  // ---- RUN SCRIPT ------------------------------------------
+
+  const scriptPath = '/home/ubuntu/deploy-frontend.sh';
+
+  const bashChildProcess = spawn('bash', [scriptPath]);
+  // STDOUT
+  bashChildProcess.stdout.on('data', (data) => {
+    process.stdout.write(`📄 OUTPUT: ${data}`);
   });
 
-  bashChildProcess.on('close', (code) => {
-    if (code !== 0) return console.log('scripts are failed');
-    return console.log('scripts  have executed successfully');
+  // STDERR (warnings/errors)
+  bashChildProcess.stderr.on('data', (data) => {
+    process.stderr.write(`⚠️ ERROR: ${data}`);
   });
 
-  bashChildProcess.on('error', (err) => {
-    // trigger while starting the process
-    console.log('Error while starting the process');
-    console.log(err);
+  // Script finished
+  child.on('close', (code) => {
+    if (code === 0) {
+      console.log('🎉 Deployment completed successfully!');
+    } else {
+      console.log(`❌ Deployment script exited with code ${code}`);
+    }
+  });
+
+  // Script failed to start
+  child.on('error', (err) => {
+    console.log('🔥 Failed to start deployment script:');
+    console.error(err);
   });
 };
