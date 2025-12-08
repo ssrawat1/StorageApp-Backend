@@ -93,7 +93,10 @@ export const handleGitHubWebhook = (req, res) => {
       ? '/home/ubuntu/deploy-frontend.sh'
       : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath]);
+  const bashChildProcess = spawn('bash', [scriptPath], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 300000,
+  });
 
   let logs = '';
 
