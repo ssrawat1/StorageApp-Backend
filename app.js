@@ -110,7 +110,7 @@ app.use((err, req, res, next) => {
     });
   }
 
-  res.status(err.status || 500).json({ error: 'Something went wrong!' });
+  return res.status(err.status || 500).json({ error: 'Something went wrong!' });
 });
 
 const server = app.listen(PORT, () => {
