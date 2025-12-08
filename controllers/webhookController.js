@@ -86,6 +86,8 @@ export const handleGitHubWebhook = (req, res) => {
   if (req.body.repository.name === 'StorageApp-Backend') {
   }
 
+  console.log({ repoName: req.body.repository.name });
+
   const scriptPath =
     req.body.repository.name !== 'StorageApp-Backend'
       ? '/home/ubuntu/deploy-frontend.sh'
