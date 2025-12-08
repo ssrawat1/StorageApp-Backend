@@ -49,6 +49,11 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+
+const execFilePromise = promisify(execFile);
+
 export const handleGitHubWebhook = (req, res) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
@@ -86,58 +91,49 @@ export const handleGitHubWebhook = (req, res) => {
   });
 };
 
-// Separate function that handles everything
-function deploymentProcess(repoName, authorEmail, authorName, bodyData) {
-  return new Promise((resolve) => {
-    const scriptPath = repoName !== 'StorageApp-Backend'
-      ? '/home/ubuntu/deploy-frontend.sh'
-      : '/home/ubuntu/deploy-backend.sh';
+async function deploymentProcess(repoName, authorEmail, authorName, bodyData) {
+  const scriptPath = repoName !== 'StorageApp-Backend'
+    ? '/home/ubuntu/deploy-frontend.sh'
+    : '/home/ubuntu/deploy-backend.sh';
 
-    console.log(`🚀 Spawning process: ${scriptPath}`);
+  console.log(`🚀 Running deployment script: ${scriptPath}`);
 
-    const bashChildProcess = spawn('bash', [scriptPath], {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      timeout: 300000
+  try {
+    // Execute script and wait for ALL output
+    const { stdout, stderr } = await execFilePromise('bash', [scriptPath], {
+      maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+      timeout: 300000 // 5 minutes
     });
 
-    let logs = '';
+    const logs = stdout + (stderr ? '\n--- STDERR ---\n' + stderr : '');
 
-    // Capture all stdout
-    bashChildProcess.stdout.on('data', (data) => {
-      const chunk = data.toString();
-      logs += chunk;
-      console.log(`📄 OUTPUT: ${chunk}`);
-    });
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`✅ Deployment completed!`);
+    console.log(`📊 Total logs: ${logs.length} characters`);
+    console.log(`${'='.repeat(70)}\n`);
+    console.log('📋 CAPTURED LOGS:');
+    console.log(logs);
+    console.log('📋 END LOGS\n');
 
-    // Capture all stderr
-    bashChildProcess.stderr.on('data', (data) => {
-      const chunk = data.toString();
-      logs += chunk;
-      console.log(`⚠️ ERROR: ${chunk}`);
-    });
+    // Send email with all logs
+    await sendEmailWithLogs(0, repoName, authorEmail, authorName, bodyData, logs);
 
-    // Wait for process to completely close
-    bashChildProcess.on('close', (code) => {
-      console.log(`\n${'='.repeat(70)}`);
-      console.log(`✅ Process closed with code: ${code}`);
-      console.log(`📊 Total logs: ${logs.length} characters`);
-      console.log(`${'='.repeat(70)}\n`);
+  } catch (error) {
+    console.error(`❌ Script execution failed: ${error.message}`);
+    console.error(`Code: ${error.code}`);
+    
+    // Combine stdout and stderr from error
+    const logs = (error.stdout || '') + (error.stderr ? '\n--- STDERR ---\n' + error.stderr : '');
+    
+    console.log('📋 CAPTURED LOGS BEFORE ERROR:');
+    console.log(logs);
+    console.log('📋 END LOGS\n');
 
-      // Now send email with all logs
-      sendEmailWithLogs(code, repoName, authorEmail, authorName, bodyData, logs);
-      
-      resolve();
-    });
-
-    // Handle process errors
-    bashChildProcess.on('error', (err) => {
-      console.error('🔥 Process error:', err);
-      resolve();
-    });
-  });
+    // Send email with error
+    await sendEmailWithLogs(1, repoName, authorEmail, authorName, bodyData, logs);
+  }
 }
 
-// Separate function just for email
 async function sendEmailWithLogs(code, repoName, authorEmail, authorName, bodyData, logs) {
   const isSuccess = code === 0;
   const status = isSuccess ? '✔ SUCCESS' : '❌ FAILED';
@@ -156,10 +152,11 @@ async function sendEmailWithLogs(code, repoName, authorEmail, authorName, bodyDa
       </p>
       <p><b>Branch:</b> ${bodyData.ref}</p>
       <p><b>Commit Message:</b> ${bodyData?.head_commit?.message}</p>
+      <p><b>Deployment Time:</b> ${new Date().toLocaleString()}</p>
 
       <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-      <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
-${logs}
+      <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px; max-height:600px; overflow-y:auto;">
+${logs || 'No logs captured'}
       </pre>
       <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
     </div>
