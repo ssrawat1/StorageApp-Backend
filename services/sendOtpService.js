@@ -113,7 +113,7 @@ export async function sendDeploymentNotification(authorEmail, message) {
 
     return {
       success: true,
-      message: `Deployment notification has been sent to this email: ${email}.`,
+      message: `Deployment notification has been sent to this email: ${authorEmail}.`,
     };
   } catch (error) {
     console.error('Error Occur for recent push:', error);
