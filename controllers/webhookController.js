@@ -93,7 +93,11 @@ export const handleGitHubWebhook = (req, res) => {
       ? '/home/ubuntu/deploy-frontend.sh'
       : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath]);
+  const bashChildProcess = spawn('bash', [scriptPath], {
+    detached: true,
+    stdio: 'ignore', // child runs independently
+  });
+  bashChildProcess.unref();
 
   let logs = '';
 
