@@ -93,8 +93,9 @@ export const handleGitHubWebhook = (req, res) => {
       ? '/home/ubuntu/deploy-frontend.sh'
       : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath],{
-    detached:"true"
+  const bashChildProcess = spawn('bash', [scriptPath], {
+    detached: 'true',
+    stdio: 'ignore',
   });
 
   let logs = '';
@@ -122,17 +123,14 @@ export const handleGitHubWebhook = (req, res) => {
     const message = `
   <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
     <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
-
     <p>Hello <b>${authorName}</b>,</p>
     <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-
     <p style="margin-top:20px;">
       <b>Status:</b> 
       <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
         ${status}
       </span>
     </p>
-
     <p><b>Branch:</b> ${req.body.ref}</p>
     <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
 
@@ -140,7 +138,6 @@ export const handleGitHubWebhook = (req, res) => {
     <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
 ${logs}
     </pre>
-
     <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
   </div>
 `;
