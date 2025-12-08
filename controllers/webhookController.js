@@ -113,12 +113,11 @@ export const handleGitHubWebhook = (req, res) => {
     let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
     // Determine deployment type based on repository
-const repoName = req.body.repository.name;
-const deploymentType =
-  repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+    const repoName = req.body.repository.name;
+    const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-// Update email title dynamically
-const message = `
+    // Update email title dynamically
+    const message = `
   <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
     <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
 
