@@ -83,7 +83,13 @@ export const handleGitHubWebhook = (req, res) => {
 
   // ---- DEPLOYMENT SCRIPT RUNS ASYNC (after response) ----
 
-  const scriptPath = '/home/ubuntu/deploy-frontend.sh';
+  if (req.body.repository.name === 'StorageApp-Backend') {
+  }
+
+  const scriptPath =
+    req.body.repository.name !== 'StorageApp-Backend'
+      ? '/home/ubuntu/deploy-frontend.sh'
+      : '/home/ubuntu/deploy-backend.sh';
 
   const bashChildProcess = spawn('bash', [scriptPath]);
 
