@@ -1,5 +1,4 @@
-// const allTestPassed = Math.random() > 0.5;
-const allTestPassed = true;
+ const allTestPassed = true;
 
 // Add color helpers
 const green = "\x1b[32m";
