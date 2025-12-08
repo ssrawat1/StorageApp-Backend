@@ -3,7 +3,6 @@ import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
-import { log } from 'console';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
 
 const CurrentPlans = {
@@ -106,28 +105,74 @@ export const handleGitHubWebhook = (req, res) => {
     let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
     const message = `
-  <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-    <h2 style="color:#4CAF50;">🚀 Deployment Update</h2>
+  <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #e5e5e5; border-radius:10px; max-width:650px;">
+    
+    <h2 style="margin:0 0 15px 0; font-size:20px;">🚀 Deployment Update</h2>
 
-    <p>Hello <b>${authorName}</b>,</p>
-    <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-
-    <p style="margin-top:20px;">
-      <b>Status:</b> 
-      <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
+    <!-- Badges -->
+    <div style="margin-bottom:20px;">
+      <span style="
+        display:inline-block;
+        background:${code === 0 ? '#28a745' : '#d9534f'};
+        color:#fff;
+        padding:6px 12px;
+        border-radius:20px;
+        font-size:13px;
+        font-weight:600;
+        margin-right:8px;
+      ">
         ${status}
       </span>
-    </p>
 
-    <p><b>Branch:</b> ${req.body.ref}</p>
-    <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
+      <span style="
+        display:inline-block;
+        background:#007bff;
+        color:#fff;
+        padding:6px 12px;
+        border-radius:20px;
+        font-size:13px;
+        font-weight:600;
+        margin-right:8px;
+      ">
+        🌿 ${req.body.ref}
+      </span>
 
-    <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-    <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
+      <span style="
+        display:inline-block;
+        background:#6c757d;
+        color:#fff;
+        padding:6px 12px;
+        border-radius:20px;
+        font-size:13px;
+        font-weight:600;
+      ">
+        📝 ${(req.body?.head_commit?.id || '').slice(0, 7)}
+      </span>
+    </div>
+
+    <p style="margin:0 0 12px 0;">Hello <b>${authorName}</b>,</p>
+    <p style="margin:0 0 20px 0;">Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
+
+    <div style="background:#fafafa; padding:12px; border-radius:8px; margin-bottom:20px; border:1px solid #eee;">
+      <p style="margin:4px 0;"><b>Branch:</b> ${req.body.ref}</p>
+      <p style="margin:4px 0;"><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
+    </div>
+
+    <h3 style="margin:0 0 8px 0; font-size:16px;">📄 Deployment Logs</h3>
+    <pre style="
+      background:#f7f7f7;
+      padding:12px;
+      border-radius:6px;
+      font-size:13px;
+      white-space:pre-wrap;
+      border:1px solid #eee;
+      max-height:300px;
+      overflow:auto;
+    ">
 ${logs}
     </pre>
 
-    <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
+    <p style="margin-top:15px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
   </div>
 `;
 
