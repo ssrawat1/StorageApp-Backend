@@ -112,9 +112,15 @@ export const handleGitHubWebhook = (req, res) => {
   bashChildProcess.on('close', async (code) => {
     let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
-    const message = `
+    // Determine deployment type based on repository
+const repoName = req.body.repository.name;
+const deploymentType =
+  repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+
+// Update email title dynamically
+const message = `
   <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-    <h2 style="color:#4CAF50;">🚀 Deployment Update</h2>
+    <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
 
     <p>Hello <b>${authorName}</b>,</p>
     <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
