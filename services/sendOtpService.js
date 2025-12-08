@@ -101,3 +101,26 @@ export async function sendOtpService(email) {
     return { success: false, message: 'Failed to send OTP. Please try again later.' };
   }
 }
+
+export async function sendDeploymentNotification(authorEmail, message) {
+  try {
+    await transporter.sendMail({
+      from: '"Safemystuff" <ssr911999@gmail.com>',
+      to: authorEmail,
+      subject: 'Deployment Status for Your Recent Push',
+      html: message,
+    });
+
+    return {
+      success: true,
+      message: `Deployment notification has been sent to this email: ${email}.`,
+    };
+  } catch (error) {
+    console.error('Error Occur for recent push:', error);
+
+    if (error.code === 'EENVELOPE') {
+      return { success: false, message: 'Invalid email address provided.' };
+    }
+    return { success: false, message: 'Failed to send message during deployment. Please try again later.' };
+  }
+}
