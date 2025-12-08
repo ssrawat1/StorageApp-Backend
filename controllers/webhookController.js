@@ -81,7 +81,7 @@ export const handleGitHubWebhook = (req, res) => {
     message: 'Webhook received. Deployment started. 🚀',
   });
 
-  // ---- DEPLOYMENT SCRIPT RUNS HERE
+  // ---- DEPLOYMENT SCRIPT RUNS HERE ---
 
   if (req.body.repository.name === 'StorageApp-Backend') {
   }
