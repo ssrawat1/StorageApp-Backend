@@ -78,10 +78,12 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
+  // ✅ Send response FIRST
   res.status(200).json({
     message: 'Webhook received. Deployment started. 🚀',
   });
 
+  // ✅ Then run deployment (don't await, don't send another response)
   const repoName = req.body.repository.name;
   console.log({ repoName });
 
@@ -97,19 +99,16 @@ export const handleGitHubWebhook = (req, res) => {
 
   let logs = '';
 
-  // STDOUT
   bashChildProcess.stdout.on('data', (data) => {
     logs += data.toString();
     process.stdout.write(`📄 OUTPUT: ${data}`);
   });
 
-  // STDERR
   bashChildProcess.stderr.on('data', (data) => {
     logs += data.toString();
     process.stderr.write(`⚠️ ERROR: ${data}`);
   });
 
-  // Script finished
   bashChildProcess.on('close', async (code) => {
     // ✅ Only reload PM2 for BACKEND
     if (repoName === 'StorageApp-Backend') {
@@ -120,8 +119,6 @@ export const handleGitHubWebhook = (req, res) => {
         logs += `\n⚠️ PM2 reload error: ${err.message}\n`;
       }
     }
-    // ✅ CloudFront is already handled in frontend script
-    // No need to do anything here for frontend
 
     let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
     const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
@@ -149,7 +146,12 @@ ${logs}
     `;
 
     if (authorEmail) {
-      await sendDeploymentNotification(authorEmail, message);
+      try {
+        await sendDeploymentNotification(authorEmail, message);
+        console.log(`✅ Email sent to ${authorEmail}`);
+      } catch (err) {
+        console.error(`❌ Failed to send email: ${err.message}`);
+      }
     } else {
       console.log('⚠️ No author email found! Cannot send notification.');
     }
