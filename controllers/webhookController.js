@@ -2,8 +2,6 @@ import { verifyRzpWebhookSignature } from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
 
@@ -51,8 +49,6 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-const execPromise = promisify(execFile);
-
 export const handleGitHubWebhook = (req, res) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
@@ -92,12 +88,7 @@ export const handleGitHubWebhook = (req, res) => {
       ? '/home/ubuntu/deploy-frontend.sh'
       : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath], {
-    detached: true,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-
-  bashChildProcess.unref();
+  const bashChildProcess = spawn('bash', [scriptPath]);
 
   let logs = '';
 
