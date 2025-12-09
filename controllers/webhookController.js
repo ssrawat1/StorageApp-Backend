@@ -78,9 +78,8 @@ export const handleGitHubWebhook = (req, res) => {
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
   // Respond to GitHub immediately because github retry again and again if build and deploy process takes more time
-  res.status(200).json({
-    message: 'Webhook received. Deployment started. 🚀',
-  });
+  res.sendStatus(200);
+  console.log('Webhook received. Deployment started. 🚀');
 
   // ---- DEPLOYMENT SCRIPT RUNS HERE ---
 
