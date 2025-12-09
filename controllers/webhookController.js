@@ -102,19 +102,20 @@ export const handleGitHubWebhook = (req, res) => {
 
   // STDOUT
   bashChildProcess.stdout.on('data', (data) => {
+    const output = data.toString();
+    if (
+      output.includes('All backend tests have passed!') ||
+      output.includes('Backend Deployment completed successfully!')
+    ) {
+      logs += output;
+    }
     process.stdout.write(`📄 OUTPUT: ${data}`);
   });
 
   // STDERR (warnings/errors)
   bashChildProcess.stderr.on('data', (data) => {
     const output = data.toString();
-    if (
-      output.includes('tests have passed') ||
-      output.includes('Deployment completed') ||
-      output.includes('Error') ||
-      output.includes('error') ||
-      output.includes('failed')
-    ) {
+    if (!output.includes(' npm warn deprecated')) {
       logs += output;
     }
     process.stderr.write(`⚠️ ERROR: ${data}`);
