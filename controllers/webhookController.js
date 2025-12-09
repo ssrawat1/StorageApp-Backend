@@ -93,8 +93,10 @@ export const handleGitHubWebhook = (req, res) => {
 
   const bashChildProcess = spawn('bash', [scriptPath], {
     detached: true,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', 'pipe', 'pipe']
   });
+
+  bashChildProcess.unref()
 
   let logs = '';
 
@@ -136,10 +138,10 @@ export const handleGitHubWebhook = (req, res) => {
 
         <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
         <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
-        ${logs}
+${logs}
         </pre>
         <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-        </div>
+      </div>
     `;
 
     if (authorEmail) {
@@ -163,5 +165,4 @@ export const handleGitHubWebhook = (req, res) => {
   bashChildProcess.on('error', (err) => {
     console.log('🔥 Failed to start deployment script', err);
   });
-  bashChildProcess.unref();
 };
