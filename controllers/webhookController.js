@@ -96,7 +96,6 @@ export const handleGitHubWebhook = (req, res) => {
   let logs = '';
 
   bashChildProcess.stdout.on('data', (data) => {
-    // logs += data.toString();
     process.stdout.write(`📄 OUTPUT: ${data}`);
   });
 
