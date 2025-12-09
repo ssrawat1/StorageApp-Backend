@@ -49,11 +49,16 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+import { spawn } from 'child_process';
+import { verifyGithubSignature } from './verifyGithubSignature.js';
+import { sendDeploymentNotification } from './sendDeploymentNotification.js';
+
 export const handleGitHubWebhook = (req, res) => {
   try {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
     const header = req.headers['x-hub-signature-256'];
     const payload = JSON.stringify(req.body);
+
     console.log('🔐 Incoming GitHub Webhook...');
 
     const isValidSignature = verifyGithubSignature(secret, header, payload);
@@ -72,7 +77,6 @@ export const handleGitHubWebhook = (req, res) => {
 
     const author = req.body?.head_commit?.author;
     const pusher = req.body?.pusher;
-
     const authorEmail = author?.email || pusher?.email;
     const authorName = author?.name || pusher?.name;
 
@@ -86,7 +90,12 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    const bashChildProcess = spawn('bash', [scriptPath]);
+    // Decide flag and pass to script
+    const flag = repoName === 'StorageApp-Backend' ? 'backend' : 'frontend';
+
+    const bashChildProcess = spawn('bash', [scriptPath, flag], {
+      env: process.env,
+    });
 
     let logs = '';
 
@@ -103,8 +112,7 @@ export const handleGitHubWebhook = (req, res) => {
     });
 
     bashChildProcess.on('close', async (code) => {
-      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
-
+      const status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
       const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
@@ -119,7 +127,6 @@ export const handleGitHubWebhook = (req, res) => {
                          </p>
                          <p><b>Branch:</b> ${req.body.ref}</p>
                          <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
-                     
                          <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
                          <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
                         ${logs}
@@ -129,9 +136,12 @@ export const handleGitHubWebhook = (req, res) => {
 
       if (authorEmail) {
         await sendDeploymentNotification(authorEmail, message);
+        console.log(`✅ Email sent to ${authorEmail}`);
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
+
+      // Reload PM2 only for backend
       if (repoName === 'StorageApp-Backend') {
         console.log('🔄 Reloading PM2 backend process...');
         const pm2Process = spawn('pm2', ['reload', 'backend'], {
@@ -139,7 +149,7 @@ export const handleGitHubWebhook = (req, res) => {
           stdio: 'ignore',
           env: process.env,
         });
-        pm2Process.unref(); // detach so Node keeps running
+        pm2Process.unref();
       }
 
       console.log(
@@ -156,3 +166,4 @@ export const handleGitHubWebhook = (req, res) => {
     console.log('Deployment Error', error.message);
   }
 };
+
