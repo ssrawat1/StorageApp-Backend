@@ -49,10 +49,6 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-import { spawn } from 'child_process';
-import { verifyGithubSignature } from './verifyGithubSignature.js';
-import { sendDeploymentNotification } from './sendDeploymentNotification.js';
-
 export const handleGitHubWebhook = (req, res) => {
   try {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
@@ -90,11 +86,12 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    // Decide flag and pass to script
+    // Pass repoName as a flag if needed
     const flag = repoName === 'StorageApp-Backend' ? 'backend' : 'frontend';
 
-    const bashChildProcess = spawn('bash', [scriptPath, flag], {
+    const bashChildProcess = spawn('/bin/bash', [scriptPath, flag], {
       env: process.env,
+      stdio: 'pipe',
     });
 
     let logs = '';
@@ -102,13 +99,13 @@ export const handleGitHubWebhook = (req, res) => {
     bashChildProcess.stdout.on('data', (data) => {
       const output = data.toString();
       logs += output;
-      process.stdout.write(`📄 OUTPUT: ${data}`);
+      process.stdout.write(`📄 OUTPUT: ${output}`);
     });
 
     bashChildProcess.stderr.on('data', (data) => {
       const output = data.toString();
       logs += output;
-      process.stderr.write(`⚠️ ERROR: ${data}`);
+      process.stderr.write(`⚠️ ERROR: ${output}`);
     });
 
     bashChildProcess.on('close', async (code) => {
@@ -119,18 +116,14 @@ export const handleGitHubWebhook = (req, res) => {
                          <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
                          <p>Hello <b>${authorName}</b>,</p>
                          <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-                         <p style="margin-top:20px;">
-                           <b>Status:</b> 
-                           <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
-                             ${status}
-                           </span>
+                         <p style="margin-top:20px;"><b>Status:</b> 
+                           <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">${status}</span>
                          </p>
                          <p><b>Branch:</b> ${req.body.ref}</p>
                          <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
                          <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
                          <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
-                        ${logs}
-                         </pre>
+                        ${logs}</pre>
                          <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
                        </div>`;
 
@@ -141,15 +134,13 @@ export const handleGitHubWebhook = (req, res) => {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
 
-      // Reload PM2 only for backend
+      // Reload PM2 backend process using full path
       if (repoName === 'StorageApp-Backend') {
         console.log('🔄 Reloading PM2 backend process...');
-        const pm2Process = spawn('pm2', ['reload', 'backend'], {
-          detached: true,
-          stdio: 'ignore',
+        const pm2Process = spawn('/usr/bin/pm2', ['reload', 'backend'], {
           env: process.env,
+          stdio: 'inherit', // show logs/errors in Node console
         });
-        pm2Process.unref();
       }
 
       console.log(
@@ -166,4 +157,3 @@ export const handleGitHubWebhook = (req, res) => {
     console.log('Deployment Error', error.message);
   }
 };
-
