@@ -125,7 +125,7 @@ export const handleGitHubWebhook = (req, res) => {
         }
       }
 
-      // ✅ CloudFront is already handled in frontend script
+      // CloudFront is already handled in frontend script
       // No need to do anything here for frontend
 
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
