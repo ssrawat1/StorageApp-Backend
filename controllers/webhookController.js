@@ -82,7 +82,6 @@ export const handleGitHubWebhook = (req, res) => {
     console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
     const repoName = req.body.repository.name;
-
     console.log({ repoName });
 
     const scriptPath =
