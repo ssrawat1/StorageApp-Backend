@@ -88,12 +88,9 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    const flag = repoName === 'StorageApp-Backend' ? 'backend' : 'frontend';
+    const bashChildProcess = spawn('bash', [scriptPath]);
 
-    const bashChildProcess = spawn('/bin/bash', [scriptPath, flag], {
-      env: process.env, // ensures PATH and other env vars
-      stdio: 'pipe', // captures stdout/stderr
-    });
+    bashChildProcess.unref();
 
     let logs = '';
 
