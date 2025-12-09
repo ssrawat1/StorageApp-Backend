@@ -81,18 +81,18 @@ export const handleGitHubWebhook = (req, res) => {
 
     const repoName = req.body.repository.name;
 
+    console.log({ repoName });
+
     const scriptPath =
       repoName !== 'StorageApp-Backend'
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    // decide a simple flag
     const flag = repoName === 'StorageApp-Backend' ? 'backend' : 'frontend';
 
-    // spawn using absolute bash and pass the flag; inherit env so script sees PATH/.env
     const bashChildProcess = spawn('/bin/bash', [scriptPath, flag], {
-      env: process.env,
-      stdio: 'pipe',
+      env: process.env, // ensures PATH and other env vars
+      stdio: 'pipe', // captures stdout/stderr
     });
 
     let logs = '';
@@ -110,6 +110,14 @@ export const handleGitHubWebhook = (req, res) => {
     });
 
     bashChildProcess.on('close', async (code) => {
+      if (repoName === 'StorageApp-Backend') {
+        try {
+          // await execPromise('pm2', ['reload', 'backend', '--update-env']);
+        } catch (err) {
+          console.log('Error while reloading PM2 process:', err.message);
+        }
+      }
+
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
@@ -138,11 +146,6 @@ export const handleGitHubWebhook = (req, res) => {
         await sendDeploymentNotification(authorEmail, message);
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
-      }
-
-      if (repoName === 'StorageApp-Backend') {
-        console.log('🔄 Reloading PM2 backend process...');
-        spawn('/usr/bin/pm2', ['reload', 'backend'], { env: process.env, stdio: 'inherit' });
       }
 
       console.log(
