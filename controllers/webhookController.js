@@ -132,6 +132,9 @@ export const handleGitHubWebhook = (req, res) => {
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
+      if (repoName === 'StorageApp-Backend') {
+        spawn('pm2', ['reload', 'backend']);
+      }
 
       console.log(
         code === 0
