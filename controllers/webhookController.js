@@ -49,8 +49,9 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+const execPromise = promisify(execFile);
+
 export const handleGitHubWebhook = (req, res) => {
-  const execPromise = promisify(execFile);
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
   const payload = JSON.stringify(req.body);
@@ -66,12 +67,9 @@ export const handleGitHubWebhook = (req, res) => {
     });
   }
 
-  // Respond to GitHub immediately because github retry again and again if build and deploy process takes more time
   res.status(200).json({
     message: 'Webhook received. Deployment started. 🚀',
   });
-
-  // Extract developer email
 
   const author = req.body?.head_commit?.author;
   const pusher = req.body?.pusher;
@@ -82,13 +80,14 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
-  // ---- DEPLOYMENT SCRIPT RUNS HERE ---
+  // ✅ FIX 2: Move this line BEFORE try block
+  const repoName = req.body.repository.name;
 
   try {
-    console.log({ repoName: req.body.repository.name });
+    console.log({ repoName });
 
     const scriptPath =
-      req.body.repository.name !== 'StorageApp-Backend'
+      repoName !== 'StorageApp-Backend'
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
@@ -101,21 +100,18 @@ export const handleGitHubWebhook = (req, res) => {
 
     let logs = '';
 
-    // STDOUT
     bashChildProcess.stdout.on('data', (data) => {
       const output = data.toString();
       logs += output;
       process.stdout.write(`📄 OUTPUT: ${data}`);
     });
 
-    // STDERR (warnings/errors)
     bashChildProcess.stderr.on('data', (data) => {
       const output = data.toString();
       logs += output;
       process.stderr.write(`⚠️ ERROR: ${data}`);
     });
 
-    // Script finished
     bashChildProcess.on('close', async (code) => {
       if (repoName === 'StorageApp-Backend') {
         try {
@@ -125,16 +121,11 @@ export const handleGitHubWebhook = (req, res) => {
         }
       }
 
-      // CloudFront is already handled in frontend script
-      // No need to do anything here for frontend
-
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
-      // Determine deployment type based on repository
-      const repoName = req.body.repository.name;
+      // ✅ FIX 3: Move this line inside the close event (where it's used)
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-      // Update email title dynamically
       const message = `
   <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
     <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
@@ -170,11 +161,10 @@ ${logs}
       );
     });
 
-    // Script failed to start
     bashChildProcess.on('error', (err) => {
       console.log('🔥 Failed to start deployment script', err);
     });
   } catch (error) {
-    console.log(`Error while deploying the ${deploymentType}:`, error.message);
+    console.log(`Error while deploying:`, error.message);
   }
 };
