@@ -107,7 +107,15 @@ export const handleGitHubWebhook = (req, res) => {
 
   // STDERR (warnings/errors)
   bashChildProcess.stderr.on('data', (data) => {
-    logs += data.toString();
+    if (
+      output.includes('tests have passed') ||
+      output.includes('Deployment completed') ||
+      output.includes('Error') ||
+      output.includes('error') ||
+      output.includes('failed')
+    ) {
+      logs += output;
+    }
     process.stderr.write(`⚠️ ERROR: ${data}`);
   });
 
