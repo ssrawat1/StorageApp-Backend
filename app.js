@@ -35,8 +35,6 @@ app.use(
     },
   })
 );
-app.use(cookieParser(Secret_Key));
-app.use(express.json());
 
 const whitelist = [Client_Url_1, Client_Url_2];
 
@@ -53,6 +51,9 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(cookieParser(Secret_Key));
+app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
