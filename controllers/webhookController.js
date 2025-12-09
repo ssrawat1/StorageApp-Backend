@@ -83,73 +83,74 @@ export const handleGitHubWebhook = (req, res) => {
   });
 
   // ✅ Then run deployment (don't await, don't send another response)
-  const repoName = req.body.repository.name;
-  console.log({ repoName });
+  try {
+    const repoName = req.body.repository.name;
+    console.log({ repoName });
 
-  const scriptPath =
-    repoName !== 'StorageApp-Backend'
-      ? '/home/ubuntu/deploy-frontend.sh'
-      : '/home/ubuntu/deploy-backend.sh';
+    const scriptPath =
+      repoName !== 'StorageApp-Backend'
+        ? '/home/ubuntu/deploy-frontend.sh'
+        : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath], {
-    detached: true,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+    const bashChildProcess = spawn('bash', [scriptPath], {
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
-  bashChildProcess.unref();
+    bashChildProcess.unref();
 
-  let logs = '';
+    let logs = '';
 
-  bashChildProcess.stdout.on('data', (data) => {
-    process.stdout.write(`📄 OUTPUT: ${data}`);
-  });
+    bashChildProcess.stdout.on('data', (data) => {
+      process.stdout.write(`📄 OUTPUT: ${data}`);
+    });
 
-  bashChildProcess.stderr.on('data', (data) => {
-    if (
-      output.includes('tests have passed') ||
-      output.includes('Deployment completed') ||
-      output.includes('Error') ||
-      output.includes('error') ||
-      output.includes('failed')
-    ) {
-      logs += output;
-    }
-    process.stderr.write(`⚠️ ERROR: ${data}`);
-  });
-
-  bashChildProcess.on('close', async (code) => {
-    // ✅ Only reload PM2 for BACKEND
-    if (repoName === 'StorageApp-Backend') {
-      try {
-        await execPromise('pm2', ['reload', 'backend']);
-      } catch (err) {
-        console.log(err.message);
+    bashChildProcess.stderr.on('data', (data) => {
+      if (
+        output.includes('tests have passed') ||
+        output.includes('Deployment completed') ||
+        output.includes('Error') ||
+        output.includes('error') ||
+        output.includes('failed')
+      ) {
+        logs += output;
       }
-    }
+      process.stderr.write(`⚠️ ERROR: ${data}`);
+    });
 
-    let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
-    const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+    bashChildProcess.on('close', async (code) => {
+      // ✅ Only reload PM2 for BACKEND
+      if (repoName === 'StorageApp-Backend') {
+        try {
+          await execPromise('pm2', ['reload', 'backend']);
+        } catch (err) {
+          console.log(err.message);
+        }
+      }
 
-    // ✅ Conditional logs display
-    let logsSection = '';
-    let statusMessage = '';
+      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+      const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-    if (code === 0) {
-      // ✅ SUCCESS - No logs section
-      statusMessage = '✅ Your deployment has been completed successfully!';
-      logsSection = '';
-    } else {
-      // ❌ FAILED - Show error logs
-      statusMessage = '❌ Your deployment has failed. Please check the error logs below.';
-      logsSection = `
+      // ✅ Conditional logs display
+      let logsSection = '';
+      let statusMessage = '';
+
+      if (code === 0) {
+        // ✅ SUCCESS - No logs section
+        statusMessage = '✅ Your deployment has been completed successfully!';
+        logsSection = '';
+      } else {
+        // ❌ FAILED - Show error logs
+        statusMessage = '❌ Your deployment has failed. Please check the error logs below.';
+        logsSection = `
         <h3 style="margin-top:25px;">📄 Error Logs</h3>
         <pre style="background:#ffe6e6; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px; border:1px solid #ff9999;">
 ${logs || 'No error logs captured'}
         </pre>
       `;
-    }
+      }
 
-    const message = `
+      const message = `
       <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
         <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
         <p>Hello <b>${authorName}</b>,</p>
@@ -172,26 +173,29 @@ ${logs || 'No error logs captured'}
       </div>
     `;
 
-    if (authorEmail) {
-      console.log(logs);
-      try {
-        await sendDeploymentNotification(authorEmail, message);
-        console.log(`✅ Email sent to ${authorEmail}`);
-      } catch (err) {
-        console.error(`❌ Failed to send email: ${err.message}`);
+      if (authorEmail) {
+        console.log(logs);
+        try {
+          await sendDeploymentNotification(authorEmail, message);
+          console.log(`✅ Email sent to ${authorEmail}`);
+        } catch (err) {
+          console.error(`❌ Failed to send email: ${err.message}`);
+        }
+      } else {
+        console.log('⚠️ No author email found! Cannot send notification.');
       }
-    } else {
-      console.log('⚠️ No author email found! Cannot send notification.');
-    }
 
-    console.log(
-      code === 0
-        ? '🎉 Deployment completed successfully!'
-        : `❌ Deployment failed with code ${code}`
-    );
-  });
+      console.log(
+        code === 0
+          ? '🎉 Deployment completed successfully!'
+          : `❌ Deployment failed with code ${code}`
+      );
+    });
 
-  bashChildProcess.on('error', (err) => {
-    console.log('🔥 Failed to start deployment script', err);
-  });
+    bashChildProcess.on('error', (err) => {
+      console.log('🔥 Failed to start deployment script', err);
+    });
+  } catch (error) {
+    console.error('❌ Error in webhook handler:', err.message);
+  }
 };
