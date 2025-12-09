@@ -27,6 +27,7 @@ const Client_Url_2 = process.env.CLIENT_URL_2;
 
 app.use(
   helmet({
+    crossOriginResourcePolicy: { policy: 'same-site' },
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
