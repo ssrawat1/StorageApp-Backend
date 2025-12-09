@@ -116,7 +116,7 @@ export const handleGitHubWebhook = (req, res) => {
         try {
           await execPromise('pm2', ['reload', 'backend', '--update-env']);
         } catch (err) {
-          console.log(err.message);
+          console.log('Error while reloading PM2 process:', err.message);
         }
       }
 
