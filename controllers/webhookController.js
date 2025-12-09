@@ -84,57 +84,58 @@ export const handleGitHubWebhook = (req, res) => {
 
   // ---- DEPLOYMENT SCRIPT RUNS HERE ---
 
-  console.log({ repoName: req.body.repository.name });
+  try {
+    console.log({ repoName: req.body.repository.name });
 
-  const scriptPath =
-    req.body.repository.name !== 'StorageApp-Backend'
-      ? '/home/ubuntu/deploy-frontend.sh'
-      : '/home/ubuntu/deploy-backend.sh';
+    const scriptPath =
+      req.body.repository.name !== 'StorageApp-Backend'
+        ? '/home/ubuntu/deploy-frontend.sh'
+        : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath], {
-    detached: true,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+    const bashChildProcess = spawn('bash', [scriptPath], {
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
-  bashChildProcess.unref();
+    bashChildProcess.unref();
 
-  let logs = '';
+    let logs = '';
 
-  // STDOUT
-  bashChildProcess.stdout.on('data', (data) => {
-    const output = data.toString();
-    logs += output;
-    process.stdout.write(`📄 OUTPUT: ${data}`);
-  });
+    // STDOUT
+    bashChildProcess.stdout.on('data', (data) => {
+      const output = data.toString();
+      logs += output;
+      process.stdout.write(`📄 OUTPUT: ${data}`);
+    });
 
-  // STDERR (warnings/errors)
-  bashChildProcess.stderr.on('data', (data) => {
-    const output = data.toString();
-    logs += output;
-    process.stderr.write(`⚠️ ERROR: ${data}`);
-  });
+    // STDERR (warnings/errors)
+    bashChildProcess.stderr.on('data', (data) => {
+      const output = data.toString();
+      logs += output;
+      process.stderr.write(`⚠️ ERROR: ${data}`);
+    });
 
-  // Script finished
-  bashChildProcess.on('close', async (code) => {
-    if (repoName === 'StorageApp-Backend') {
-      try {
-        await execPromise('pm2', ['reload', 'backend', '--update-env']);
-      } catch (err) {
-        console.log(err.message);
+    // Script finished
+    bashChildProcess.on('close', async (code) => {
+      if (repoName === 'StorageApp-Backend') {
+        try {
+          await execPromise('pm2', ['reload', 'backend', '--update-env']);
+        } catch (err) {
+          console.log(err.message);
+        }
       }
-    }
 
-    // ✅ CloudFront is already handled in frontend script
-    // No need to do anything here for frontend
+      // ✅ CloudFront is already handled in frontend script
+      // No need to do anything here for frontend
 
-    let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
-    // Determine deployment type based on repository
-    const repoName = req.body.repository.name;
-    const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+      // Determine deployment type based on repository
+      const repoName = req.body.repository.name;
+      const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-    // Update email title dynamically
-    const message = `
+      // Update email title dynamically
+      const message = `
   <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
     <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
     <p>Hello <b>${authorName}</b>,</p>
@@ -156,21 +157,24 @@ ${logs}
   </div>
 `;
 
-    if (authorEmail) {
-      await sendDeploymentNotification(authorEmail, message);
-    } else {
-      console.log('⚠️ No author email found! Cannot send notification.');
-    }
+      if (authorEmail) {
+        await sendDeploymentNotification(authorEmail, message);
+      } else {
+        console.log('⚠️ No author email found! Cannot send notification.');
+      }
 
-    console.log(
-      code === 0
-        ? '🎉 Deployment completed successfully!'
-        : `❌ Deployment failed with code ${code}`
-    );
-  });
+      console.log(
+        code === 0
+          ? '🎉 Deployment completed successfully!'
+          : `❌ Deployment failed with code ${code}`
+      );
+    });
 
-  // Script failed to start
-  bashChildProcess.on('error', (err) => {
-    console.log('🔥 Failed to start deployment script', err);
-  });
+    // Script failed to start
+    bashChildProcess.on('error', (err) => {
+      console.log('🔥 Failed to start deployment script', err);
+    });
+  } catch (error) {
+    console.log(`Error while deploying the ${deploymentType}:`, error.message);
+  }
 };
