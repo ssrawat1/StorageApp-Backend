@@ -114,38 +114,50 @@ export const handleGitHubWebhook = (req, res) => {
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
       const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-                         <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
-                         <p>Hello <b>${authorName}</b>,</p>
-                         <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-                         <p style="margin-top:20px;">
-                           <b>Status:</b> 
-                           <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
-                             ${status}
-                           </span>
-                         </p>
-                         <p><b>Branch:</b> ${req.body.ref}</p>
-                         <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
-                     
-                         <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-                         <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
-                        ${logs}
-                         </pre>
-                         <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-                       </div>`;
+                     <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
+                     <p>Hello <b>${authorName}</b>,</p>
+                     <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
+                     <p style="margin-top:20px;">
+                       <b>Status:</b> 
+                       <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
+                         ${status}
+                       </span>
+                     </p>
+                     <p><b>Branch:</b> ${req.body.ref}</p>
+                     <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
+                 
+                     <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
+                     <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
+                    ${logs}
+                     </pre>
+                     <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
+                   </div>`;
 
+      // ✅ Send email and WAIT for it to complete
       if (authorEmail) {
-        await sendDeploymentNotification(authorEmail, message);
+        try {
+          await sendDeploymentNotification(authorEmail, message);
+          console.log(`✅ Email sent to ${authorEmail}`);
+        } catch (err) {
+          console.error('❌ Failed to send email:', err.message);
+        }
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
 
+      // ✅ THEN reload PM2 (after email is sent)
       if (repoName === 'StorageApp-Backend') {
-        const reloadProcess = spawn('pm2', ['reload', 'backend', '--update-env'], {
-          detached: true,
-          stdio: 'ignore',
-        });
-        reloadProcess.unref();
-        console.log('✅ PM2 reload initiated');
+        console.log('⏳ Reloading PM2 process...');
+
+        // Use setTimeout to ensure email is fully sent
+        setTimeout(() => {
+          const reloadProcess = spawn('pm2', ['reload', 'backend', '--update-env'], {
+            detached: true,
+            stdio: 'ignore',
+          });
+          reloadProcess.unref();
+          console.log('✅ PM2 reload initiated');
+        }, 1000); // Wait 1 second before reloading
       }
 
       console.log(
