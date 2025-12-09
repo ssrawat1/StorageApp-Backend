@@ -106,7 +106,7 @@ app.post(
 app.use((err, req, res, next) => {
   // res.json(err);
   if (res.headersSent) {
-    return next(err); // Headers already sent, don't send again
+    return; // Headers already sent, don't send again
   }
   if (err.code === 11000) {
     return res.status(409).json({
