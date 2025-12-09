@@ -84,9 +84,6 @@ export const handleGitHubWebhook = (req, res) => {
 
   // ---- DEPLOYMENT SCRIPT RUNS HERE ---
 
-  if (req.body.repository.name === 'StorageApp-Backend') {
-  }
-
   console.log({ repoName: req.body.repository.name });
 
   const scriptPath =

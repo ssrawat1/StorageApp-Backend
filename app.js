@@ -105,9 +105,6 @@ app.post(
 
 app.use((err, req, res, next) => {
   // res.json(err);
-  if (res.headersSent) {
-    return; // Headers already sent, don't send again
-  }
   if (err.code === 11000) {
     return res.status(409).json({
       error: 'An account with this email already exists. Please log in to continue.',
