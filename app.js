@@ -44,7 +44,7 @@ app.use(
   cors({
     origin: function (origin, callback) {
       console.log({ origin });
-      if (whitelist.indexOf(origin) !== -1 || !origin) {
+      if (!origin || whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -105,7 +105,6 @@ app.post(
 
 app.use((err, req, res, next) => {
   // res.json(err);
-  console.log('Error Handler:', err);
   if (err.code === 11000) {
     return res.status(409).json({
       error: 'An account with this email already exists. Please log in to continue.',
