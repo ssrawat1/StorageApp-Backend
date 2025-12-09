@@ -51,7 +51,7 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-const execPromise = promisfy(execFile);
+const execPromise = promisify(execFile);
 
 export const handleGitHubWebhook = (req, res) => {
   try {
