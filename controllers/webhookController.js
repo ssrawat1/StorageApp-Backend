@@ -215,7 +215,6 @@ ${cleanedLogs}
           : `❌ Deployment failed with code ${code}`
       );
     });
-
     bashChildProcess.on('error', (err) => {
       console.log('🔥 Failed to start deployment script', err);
     });
