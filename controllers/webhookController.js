@@ -196,6 +196,6 @@ ${logs || 'No error logs captured'}
       console.log('🔥 Failed to start deployment script', err);
     });
   } catch (error) {
-    console.error('❌ Error in webhook handler:', err.message);
+    console.error('❌ Error While deployment:', err.message);
   }
 };
