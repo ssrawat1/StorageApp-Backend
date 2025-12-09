@@ -51,7 +51,7 @@ export const handleRazorpayWebhook = async (req, res) => {
 
 const execPromise = promisify(execFile);
 
-export const handleGitHubWebhook = async (req, res) => {
+export const handleGitHubWebhook = (req, res) => {
   try {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
     const header = req.headers['x-hub-signature-256'];
@@ -68,7 +68,9 @@ export const handleGitHubWebhook = async (req, res) => {
       });
     }
 
-    res.status(200).end();
+    res.status(200).json({
+      message: 'Webhook received. Deployment started. 🚀',
+    });
 
     const author = req.body?.head_commit?.author;
     const pusher = req.body?.pusher;
@@ -160,6 +162,6 @@ export const handleGitHubWebhook = async (req, res) => {
       console.log('🔥 Failed to start deployment script', err);
     });
   } catch (error) {
-    console.log('Error while deployment', error.message);
+    console.log('Deployment Error', error.message);
   }
 };
