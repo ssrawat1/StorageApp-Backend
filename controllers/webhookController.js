@@ -85,13 +85,14 @@ export const handleGitHubWebhook = (req, res) => {
   const repoName = req.body.repository.name;
   console.log({ repoName });
 
-  const scriptPath = repoName !== 'StorageApp-Backend'
-    ? '/home/ubuntu/deploy-frontend.sh'
-    : '/home/ubuntu/deploy-backend.sh';
+  const scriptPath =
+    repoName !== 'StorageApp-Backend'
+      ? '/home/ubuntu/deploy-frontend.sh'
+      : '/home/ubuntu/deploy-backend.sh';
 
   const bashChildProcess = spawn('bash', [scriptPath], {
     detached: true,
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
 
   let logs = '';
@@ -166,4 +167,3 @@ ${logs}
 
   bashChildProcess.unref();
 };
-
