@@ -115,7 +115,7 @@ export const handleGitHubWebhook = (req, res, next) => {
     bashChildProcess.on('close', async (code) => {
       if (repoName === 'StorageApp-Backend') {
         try {
-          await execPromise('pm2', ['reload', 'backend', '--update-env']);
+          await execPromise('PM2', ['reload', 'backend', '--update-env']);
         } catch (err) {
           console.log('Error while reloading PM2 process:', err.message);
         }
