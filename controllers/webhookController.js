@@ -132,8 +132,8 @@ export const handleGitHubWebhook = (req, res) => {
                    </div>`;
 
       // ✅ Send email and WAIT for it to complete
+      console.log({ authorEmail });
       if (authorEmail) {
-        console.log({ authorEmail });
         try {
           await sendDeploymentNotification(authorEmail, message);
           console.log(`✅ Email sent to ${authorEmail}`);
@@ -145,13 +145,13 @@ export const handleGitHubWebhook = (req, res) => {
       }
 
       // ✅ THEN reload PM2 (after email is sent)
+      console.log({ repoName });
       if (repoName === 'StorageApp-Backend') {
-        console.log({ repoName });
         console.log('PM2 Process Stated ...');
         pm2.connect((err) => {
           if (err) return console.error('PM2 connect error:', err);
 
-          pm2.restart('backend', (err) => {
+          pm2.reload('backend', (err) => {
             pm2.disconnect();
             if (err) console.error('❌ PM2 restart error:', err);
             else console.log('✅ PM2 restarted successfully (cluster mode)');
