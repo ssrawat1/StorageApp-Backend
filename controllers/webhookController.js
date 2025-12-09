@@ -51,7 +51,7 @@ export const handleRazorpayWebhook = async (req, res) => {
 
 const execPromise = promisify(execFile);
 
-export const handleGitHubWebhook = (req, res) => {
+export const handleGitHubWebhook = (req, res, next) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
   const payload = JSON.stringify(req.body);
@@ -67,7 +67,9 @@ export const handleGitHubWebhook = (req, res) => {
     });
   }
 
-  res.sendStatus(200);
+  res.status(200).json({
+    message: 'Webhook received. Deployment started. 🚀',
+  });
 
   const author = req.body?.head_commit?.author;
   const pusher = req.body?.pusher;
@@ -89,7 +91,12 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    const bashChildProcess = spawn('bash', [scriptPath]);
+    const bashChildProcess = spawn('bash', [scriptPath], {
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+
+    bashChildProcess.unref();
 
     let logs = '';
 
@@ -158,5 +165,6 @@ export const handleGitHubWebhook = (req, res) => {
     });
   } catch (error) {
     console.log(`Error while deploying:`, error.message);
+    next(error);
   }
 };
