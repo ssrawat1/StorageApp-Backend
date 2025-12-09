@@ -115,7 +115,7 @@ export const handleGitHubWebhook = (req, res) => {
   // STDERR (warnings/errors)
   bashChildProcess.stderr.on('data', (data) => {
     const output = data.toString();
-    if (!output.includes(' npm warn deprecated')) {
+    if (!output.includes('npm warn deprecated')) {
       logs += output;
     }
     process.stderr.write(`⚠️ ERROR: ${data}`);
