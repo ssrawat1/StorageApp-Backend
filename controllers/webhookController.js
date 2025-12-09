@@ -122,86 +122,31 @@ export const handleGitHubWebhook = (req, res) => {
       }
 
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+
+      // ✅ FIX 3: Move this line inside the close event (where it's used)
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-      // ✅ Clean and extract important lines only
-      const cleanedLogs = logs
-        .replace(/\x1b\[[0-9;]*m/g, '') // Remove ANSI codes
-        .split('\n')
-        .filter((line) => line.trim()) // Remove empty lines
-        .filter((line) => !line.includes('npm warn') && !line.includes('deprecated')) // Remove warnings
-        .slice(-3) // Show only last 3 lines
-        .join('\n');
-
-      // ✅ Build message based on status
-      let statusBox = '';
-      let summarySection = '';
-
-      if (code === 0) {
-        // SUCCESS
-        statusBox = `
-      <div style="background:#d4edda; border:2px solid #28a745; border-radius:8px; padding:15px; margin:20px 0;">
-        <h3 style="color:#155724; margin:0 0 10px 0;">✅ Deployment Successful!</h3>
-        <p style="color:#155724; margin:5px 0;">Your code has been deployed and is now live.</p>
-      </div>
-    `;
-
-        summarySection = `
-      <div style="background:#f8f9fa; border-left:4px solid #28a745; padding:12px; margin:15px 0; border-radius:4px;">
-        <p style="margin:0; font-weight:bold; color:#155724;">📋 Deployment Summary</p>
-        <pre style="margin:10px 0 0 0; font-size:13px; color:#333;">
-${cleanedLogs}
-        </pre>
-      </div>
-    `;
-      } else {
-        // FAILED
-        statusBox = `
-      <div style="background:#f8d7da; border:2px solid #dc3545; border-radius:8px; padding:15px; margin:20px 0;">
-        <h3 style="color:#721c24; margin:0 0 10px 0;">❌ Deployment Failed</h3>
-        <p style="color:#721c24; margin:5px 0;">Please review the error logs below and fix the issues.</p>
-      </div>
-    `;
-
-        summarySection = `
-      <div style="background:#fff5f5; border-left:4px solid #dc3545; padding:12px; margin:15px 0; border-radius:4px;">
-        <p style="margin:0; font-weight:bold; color:#721c24;">📄 Error Details</p>
-        <pre style="margin:10px 0 0 0; font-size:13px; color:#721c24; overflow-x:auto;">
-${cleanedLogs}
-        </pre>
-      </div>
-    `;
-      }
-
       const message = `
-    <div style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding:20px; max-width:600px; margin:0 auto;">
-      <div style="background:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #e9ecef;">
-        
-        <!-- Header -->
-        <h1 style="color:#333; margin:0 0 10px 0; font-size:24px;">🚀 ${deploymentType} Deployment</h1>
-        <p style="color:#666; margin:0 0 20px 0;">Repository: <b>${repoName}</b></p>
+  <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
+    <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
+    <p>Hello <b>${authorName}</b>,</p>
+    <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
+    <p style="margin-top:20px;">
+      <b>Status:</b> 
+      <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
+        ${status}
+      </span>
+    </p>
+    <p><b>Branch:</b> ${req.body.ref}</p>
+    <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
 
-        <!-- Status Box -->
-        ${statusBox}
-
-        <!-- Details -->
-        <div style="background:white; padding:15px; border-radius:6px; margin:15px 0; border:1px solid #e9ecef;">
-          <p style="margin:8px 0;"><b>Status:</b> ${status}</p>
-          <p style="margin:8px 0;"><b>Branch:</b> ${req.body.ref}</p>
-          <p style="margin:8px 0;"><b>Commit:</b> ${req.body?.head_commit?.message}</p>
-          <p style="margin:8px 0;"><b>Time:</b> ${new Date().toLocaleString()}</p>
-        </div>
-
-        <!-- Summary -->
-        ${summarySection}
-
-        <!-- Footer -->
-        <p style="color:#999; font-size:12px; margin-top:20px; border-top:1px solid #e9ecef; padding-top:15px;">
-          Automated deployment by Safemystuff CI/CD • ${new Date().toLocaleDateString()}
-        </p>
-      </div>
-    </div>
-  `;
+    <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
+    <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
+${logs}
+    </pre>
+    <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
+  </div>
+`;
 
       if (authorEmail) {
         await sendDeploymentNotification(authorEmail, message);
@@ -215,6 +160,7 @@ ${cleanedLogs}
           : `❌ Deployment failed with code ${code}`
       );
     });
+
     bashChildProcess.on('error', (err) => {
       console.log('🔥 Failed to start deployment script', err);
     });
