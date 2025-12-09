@@ -2,6 +2,8 @@ import { verifyRzpWebhookSignature } from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
 
@@ -49,7 +51,7 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-// const execPromise = promisfy(execFile);
+const execPromise = promisfy(execFile);
 
 export const handleGitHubWebhook = (req, res) => {
   try {
@@ -113,7 +115,7 @@ export const handleGitHubWebhook = (req, res) => {
     bashChildProcess.on('close', async (code) => {
       if (repoName === 'StorageApp-Backend') {
         try {
-          // await execPromise('pm2', ['reload', 'backend', '--update-env']);
+          await execPromise('pm2', ['reload', 'backend', '--update-env']);
         } catch (err) {
           console.log('Error while reloading PM2 process:', err.message);
         }
