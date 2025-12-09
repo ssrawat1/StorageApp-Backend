@@ -90,8 +90,6 @@ export const handleGitHubWebhook = (req, res) => {
 
     const bashChildProcess = spawn('bash', [scriptPath]);
 
-    bashChildProcess.unref();
-
     let logs = '';
 
     bashChildProcess.stdout.on('data', (data) => {
@@ -143,6 +141,11 @@ export const handleGitHubWebhook = (req, res) => {
         await sendDeploymentNotification(authorEmail, message);
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
+      }
+
+      if (repoName === 'StorageApp-Backend') {
+        console.log('🔄 Reloading PM2 backend process...');
+        spawn('bash', [scriptPath, 'backend']);
       }
 
       console.log(
