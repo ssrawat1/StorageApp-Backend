@@ -149,17 +149,12 @@ export const handleGitHubWebhook = (req, res) => {
         console.log({ repoName });
         console.log('PM2 Process Stated ...');
         pm2.connect((err) => {
-          if (err) {
-            console.error('Error connecting to PM2:', err);
-            return;
-          }
-          pm2.reload('backend', (err) => {
+          if (err) return console.error('PM2 connect error:', err);
+
+          pm2.restart('backend', (err) => {
             pm2.disconnect();
-            if (err) {
-              console.error('❌ Error reloading PM2:', err.message);
-            } else {
-              console.log('✅ PM2 process reloaded successfully');
-            }
+            if (err) console.error('❌ PM2 restart error:', err);
+            else console.log('✅ PM2 restarted successfully (cluster mode)');
           });
         });
       }
