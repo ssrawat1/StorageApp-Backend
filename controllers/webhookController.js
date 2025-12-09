@@ -2,6 +2,8 @@ import { verifyRzpWebhookSignature } from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
 
@@ -49,6 +51,8 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+const execPromise = promisify(execFile);
+
 export const handleGitHubWebhook = (req, res) => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET;
   const header = req.headers['x-hub-signature-256'];
@@ -65,8 +69,6 @@ export const handleGitHubWebhook = (req, res) => {
     });
   }
 
-  // Extract developer email
-
   const author = req.body?.head_commit?.author;
   const pusher = req.body?.pusher;
 
@@ -76,38 +78,31 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
-  // Respond to GitHub immediately because github retry again and again if build and deploy process takes more time
   res.status(200).json({
     message: 'Webhook received. Deployment started. 🚀',
   });
 
-  // ---- DEPLOYMENT SCRIPT RUNS HERE ---
+  const repoName = req.body.repository.name;
+  console.log({ repoName });
 
-  if (req.body.repository.name === 'StorageApp-Backend') {
-  }
-
-  console.log({ repoName: req.body.repository.name });
-
-  const scriptPath =
-    req.body.repository.name !== 'StorageApp-Backend'
-      ? '/home/ubuntu/deploy-frontend.sh'
-      : '/home/ubuntu/deploy-backend.sh';
+  const scriptPath = repoName !== 'StorageApp-Backend'
+    ? '/home/ubuntu/deploy-frontend.sh'
+    : '/home/ubuntu/deploy-backend.sh';
 
   const bashChildProcess = spawn('bash', [scriptPath], {
     detached: true,
-    stdio: 'ignore',
+    stdio: ['ignore', 'pipe', 'pipe']
   });
-
-  bashChildProcess.unref();
 
   let logs = '';
 
   // STDOUT
   bashChildProcess.stdout.on('data', (data) => {
+    logs += data.toString();
     process.stdout.write(`📄 OUTPUT: ${data}`);
   });
 
-  // STDERR (warnings/errors)
+  // STDERR
   bashChildProcess.stderr.on('data', (data) => {
     logs += data.toString();
     process.stderr.write(`⚠️ ERROR: ${data}`);
@@ -115,34 +110,42 @@ export const handleGitHubWebhook = (req, res) => {
 
   // Script finished
   bashChildProcess.on('close', async (code) => {
-    let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+    // ✅ Only reload PM2 for BACKEND
+    if (repoName === 'StorageApp-Backend') {
+      try {
+        await execPromise('pm2', ['reload', 'backend', '--update-env']);
+        logs += '\n✅ PM2 reloaded successfully\n';
+      } catch (err) {
+        logs += `\n⚠️ PM2 reload error: ${err.message}\n`;
+      }
+    }
+    // ✅ CloudFront is already handled in frontend script
+    // No need to do anything here for frontend
 
-    // Determine deployment type based on repository
-    const repoName = req.body.repository.name;
+    let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
     const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-    // Update email title dynamically
     const message = `
-  <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-    <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
-    <p>Hello <b>${authorName}</b>,</p>
-    <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-    <p style="margin-top:20px;">
-      <b>Status:</b> 
-      <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
-        ${status}
-      </span>
-    </p>
-    <p><b>Branch:</b> ${req.body.ref}</p>
-    <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
+      <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
+        <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
+        <p>Hello <b>${authorName}</b>,</p>
+        <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
+        <p style="margin-top:20px;">
+          <b>Status:</b> 
+          <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
+            ${status}
+          </span>
+        </p>
+        <p><b>Branch:</b> ${req.body.ref}</p>
+        <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
 
-    <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-    <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
+        <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
+        <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
 ${logs}
-    </pre>
-    <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-  </div>
-`;
+        </pre>
+        <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
+      </div>
+    `;
 
     if (authorEmail) {
       await sendDeploymentNotification(authorEmail, message);
@@ -157,8 +160,10 @@ ${logs}
     );
   });
 
-  // Script failed to start
   bashChildProcess.on('error', (err) => {
     console.log('🔥 Failed to start deployment script', err);
   });
+
+  bashChildProcess.unref();
 };
+
