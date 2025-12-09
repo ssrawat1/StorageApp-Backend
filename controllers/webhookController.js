@@ -80,8 +80,8 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
-  const repoName = req.body.repository.name;
   console.log(req.body)
+  const repoName = req.body.repository.name;
 
   try {
     console.log({ repoName });
