@@ -4,6 +4,9 @@ import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+const execPromise = promisify(execFile);
 
 const CurrentPlans = {
   plan_RTzvPDYfL51wb4: { storageQuotaBytes: 2 * 1024 ** 4 },
