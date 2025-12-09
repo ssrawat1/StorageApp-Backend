@@ -163,7 +163,7 @@ export const handleGitHubWebhook = (req, res) => {
         console.log('🔥 Failed to start deployment script', err);
       });
     } catch (error) {
-      console.error('Deployment error:', err);
+      console.error(`Deployment error:`, err);
     }
   })();
 };
