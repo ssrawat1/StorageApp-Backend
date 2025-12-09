@@ -72,7 +72,7 @@ export const handleGitHubWebhook = (req, res) => {
       message: 'Webhook received. Deployment started. 🚀',
     });
 
-    console.log('Data:', req.body);
+    console.log('Github Data:', req.body);
     const author = req.body?.head_commit?.author;
     const pusher = req.body?.pusher;
 
