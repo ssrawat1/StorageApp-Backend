@@ -147,7 +147,7 @@ export const handleGitHubWebhook = (req, res) => {
         reloadProcess.unref();
         console.log('✅ PM2 reload initiated');
       }
-      
+
       console.log(
         code === 0
           ? '🎉 Deployment completed successfully!'
