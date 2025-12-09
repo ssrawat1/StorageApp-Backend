@@ -68,9 +68,7 @@ export const handleGitHubWebhook = async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      message: 'Webhook received. Deployment started. 🚀',
-    });
+    res.status(200).end();
 
     const author = req.body?.head_commit?.author;
     const pusher = req.body?.pusher;
