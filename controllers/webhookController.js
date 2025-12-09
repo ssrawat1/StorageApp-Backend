@@ -51,82 +51,81 @@ export const handleRazorpayWebhook = async (req, res) => {
 
 const execPromise = promisify(execFile);
 
-export const handleGitHubWebhook = (req, res) => {
-  const secret = process.env.GITHUB_WEBHOOK_SECRET;
-  const header = req.headers['x-hub-signature-256'];
-  const payload = JSON.stringify(req.body);
-  console.log('🔐 Incoming GitHub Webhook...');
+export const handleGitHubWebhook = async (req, res) => {
+  try {
+    const secret = process.env.GITHUB_WEBHOOK_SECRET;
+    const header = req.headers['x-hub-signature-256'];
+    const payload = JSON.stringify(req.body);
+    console.log('🔐 Incoming GitHub Webhook...');
 
-  const isValidSignature = verifyGithubSignature(secret, header, payload);
-  console.log({ isValidSignature });
+    const isValidSignature = verifyGithubSignature(secret, header, payload);
+    console.log({ isValidSignature });
 
-  if (!isValidSignature) {
-    console.log('❌ Invalid webhook signature! Unauthorized request.');
-    return res.status(403).json({
-      error: 'Invalid signature. Unauthorized request.',
+    if (!isValidSignature) {
+      console.log('❌ Invalid webhook signature! Unauthorized request.');
+      return res.status(403).json({
+        error: 'Invalid signature. Unauthorized request.',
+      });
+    }
+
+    res.status(200).json({
+      message: 'Webhook received. Deployment started. 🚀',
     });
-  }
 
-  res.status(200).json({
-    message: 'Webhook received. Deployment started. 🚀',
-  });
+    const author = req.body?.head_commit?.author;
+    const pusher = req.body?.pusher;
 
-  (async () => {
-    try {
-      const author = req.body?.head_commit?.author;
-      const pusher = req.body?.pusher;
+    const authorEmail = author?.email || pusher?.email;
+    const authorName = author?.name || pusher?.name;
 
-      const authorEmail = author?.email || pusher?.email;
-      const authorName = author?.name || pusher?.name;
+    console.log('✅ Webhook verified. Starting deployment...');
+    console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
-      console.log('✅ Webhook verified. Starting deployment...');
-      console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
+    console.log(req.body);
+    const repoName = req.body.repository.name;
 
-      console.log(req.body);
-      const repoName = req.body.repository.name;
+    console.log({ repoName });
 
-      console.log({ repoName });
+    const scriptPath =
+      repoName !== 'StorageApp-Backend'
+        ? '/home/ubuntu/deploy-frontend.sh'
+        : '/home/ubuntu/deploy-backend.sh';
 
-      const scriptPath =
-        repoName !== 'StorageApp-Backend'
-          ? '/home/ubuntu/deploy-frontend.sh'
-          : '/home/ubuntu/deploy-backend.sh';
+    const bashChildProcess = spawn('bash', [scriptPath], {
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
-      const bashChildProcess = spawn('bash', [scriptPath], {
-        detached: true,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
+    bashChildProcess.unref();
 
-      bashChildProcess.unref();
+    let logs = '';
 
-      let logs = '';
+    bashChildProcess.stdout.on('data', (data) => {
+      const output = data.toString();
+      logs += output;
+      process.stdout.write(`📄 OUTPUT: ${data}`);
+    });
 
-      bashChildProcess.stdout.on('data', (data) => {
-        const output = data.toString();
-        logs += output;
-        process.stdout.write(`📄 OUTPUT: ${data}`);
-      });
+    bashChildProcess.stderr.on('data', (data) => {
+      const output = data.toString();
+      logs += output;
+      process.stderr.write(`⚠️ ERROR: ${data}`);
+    });
 
-      bashChildProcess.stderr.on('data', (data) => {
-        const output = data.toString();
-        logs += output;
-        process.stderr.write(`⚠️ ERROR: ${data}`);
-      });
-
-      bashChildProcess.on('close', async (code) => {
-        if (repoName === 'StorageApp-Backend') {
-          try {
-            await execPromise('pm2', ['reload', 'backend', '--update-env']);
-          } catch (err) {
-            console.log('Error while reloading PM2 process:', err.message);
-          }
+    bashChildProcess.on('close', async (code) => {
+      if (repoName === 'StorageApp-Backend') {
+        try {
+          await execPromise('pm2', ['reload', 'backend', '--update-env']);
+        } catch (err) {
+          console.log('Error while reloading PM2 process:', err.message);
         }
+      }
 
-        let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
-        const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+      const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-        const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
+      const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
                          <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
                          <p>Hello <b>${authorName}</b>,</p>
                          <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
@@ -146,24 +145,23 @@ export const handleGitHubWebhook = (req, res) => {
                          <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
                        </div>`;
 
-        if (authorEmail) {
-          await sendDeploymentNotification(authorEmail, message);
-        } else {
-          console.log('⚠️ No author email found! Cannot send notification.');
-        }
+      if (authorEmail) {
+        await sendDeploymentNotification(authorEmail, message);
+      } else {
+        console.log('⚠️ No author email found! Cannot send notification.');
+      }
 
-        console.log(
-          code === 0
-            ? '🎉 Deployment completed successfully!'
-            : `❌ Deployment failed with code ${code}`
-        );
-      });
+      console.log(
+        code === 0
+          ? '🎉 Deployment completed successfully!'
+          : `❌ Deployment failed with code ${code}`
+      );
+    });
 
-      bashChildProcess.on('error', (err) => {
-        console.log('🔥 Failed to start deployment script', err);
-      });
-    } catch (error) {
-      console.error(`Deployment error:`, err);
-    }
-  })();
+    bashChildProcess.on('error', (err) => {
+      console.log('🔥 Failed to start deployment script', err);
+    });
+  } catch (error) {
+    console.log('Deployment Error:', error.message);
+  }
 };
