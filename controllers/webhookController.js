@@ -92,8 +92,10 @@ export const handleGitHubWebhook = (req, res) => {
   // ✅ ONLY CHANGE: Add detached: true
   const bashChildProcess = spawn('bash', [scriptPath], {
     detached: true,
-    stdio: ['ignore', 'pipe', 'pipe']
+    stdio: ['ignore', 'pipe', 'pipe'],
   });
+
+  bashChildProcess.unref();
 
   let logs = '';
 
