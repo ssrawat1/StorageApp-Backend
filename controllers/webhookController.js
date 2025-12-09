@@ -65,8 +65,6 @@ export const handleGitHubWebhook = (req, res) => {
     });
   }
 
-  // Extract developer email
-
   const author = req.body?.head_commit?.author;
   const pusher = req.body?.pusher;
 
@@ -76,33 +74,36 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
-  // Respond to GitHub immediately because github retry again and again if build and deploy process takes more time
+  // Respond to GitHub immediately
   res.status(200).json({
     message: 'Webhook received. Deployment started. 🚀',
   });
 
-  // ---- DEPLOYMENT SCRIPT RUNS HERE ---
+  // ---- DEPLOYMENT SCRIPT RUNS HERE ----
 
-  if (req.body.repository.name === 'StorageApp-Backend') {
-  }
-
-  console.log({ repoName: req.body.repository.name });
+  const repoName = req.body.repository.name;
+  console.log({ repoName });
 
   const scriptPath =
-    req.body.repository.name !== 'StorageApp-Backend'
+    repoName !== 'StorageApp-Backend'
       ? '/home/ubuntu/deploy-frontend.sh'
       : '/home/ubuntu/deploy-backend.sh';
 
-  const bashChildProcess = spawn('bash', [scriptPath]);
+  // ✅ ONLY CHANGE: Add detached: true
+  const bashChildProcess = spawn('bash', [scriptPath], {
+    detached: true,
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
 
   let logs = '';
 
-  // STDOUT
+  // STDOUT - ✅ CAPTURE STDOUT (was missing)
   bashChildProcess.stdout.on('data', (data) => {
+    logs += data.toString();
     process.stdout.write(`📄 OUTPUT: ${data}`);
   });
 
-  // STDERR (warnings/errors)
+  // STDERR
   bashChildProcess.stderr.on('data', (data) => {
     logs += data.toString();
     process.stderr.write(`⚠️ ERROR: ${data}`);
@@ -112,32 +113,29 @@ export const handleGitHubWebhook = (req, res) => {
   bashChildProcess.on('close', async (code) => {
     let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
-    // Determine deployment type based on repository
-    const repoName = req.body.repository.name;
     const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-    // Update email title dynamically
     const message = `
-  <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-    <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
-    <p>Hello <b>${authorName}</b>,</p>
-    <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-    <p style="margin-top:20px;">
-      <b>Status:</b> 
-      <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
-        ${status}
-      </span>
-    </p>
-    <p><b>Branch:</b> ${req.body.ref}</p>
-    <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
+      <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
+        <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
+        <p>Hello <b>${authorName}</b>,</p>
+        <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
+        <p style="margin-top:20px;">
+          <b>Status:</b> 
+          <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
+            ${status}
+          </span>
+        </p>
+        <p><b>Branch:</b> ${req.body.ref}</p>
+        <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
 
-    <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-    <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
+        <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
+        <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
 ${logs}
-    </pre>
-    <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-  </div>
-`;
+        </pre>
+        <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
+      </div>
+    `;
 
     if (authorEmail) {
       await sendDeploymentNotification(authorEmail, message);
