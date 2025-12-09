@@ -4,7 +4,6 @@ import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
-import pm2 from 'pm2';
 
 const CurrentPlans = {
   plan_RTzvPDYfL51wb4: { storageQuotaBytes: 2 * 1024 ** 4 },
@@ -81,16 +80,13 @@ export const handleGitHubWebhook = (req, res) => {
     console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
     const repoName = req.body.repository.name;
-    console.log({ repoName, response: 'Ok' });
 
     const scriptPath =
       repoName !== 'StorageApp-Backend'
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    const bashChildProcess = spawn('bash', [scriptPath], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
+    const bashChildProcess = spawn('bash', [scriptPath, repoName]);
 
     let logs = '';
 
@@ -112,51 +108,29 @@ export const handleGitHubWebhook = (req, res) => {
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
       const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-                     <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
-                     <p>Hello <b>${authorName}</b>,</p>
-                     <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-                     <p style="margin-top:20px;">
-                       <b>Status:</b> 
-                       <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
-                         ${status}
-                       </span>
-                     </p>
-                     <p><b>Branch:</b> ${req.body.ref}</p>
-                     <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
-                 
-                     <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-                     <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
-                    ${logs}
-                     </pre>
-                     <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-                   </div>`;
+                         <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
+                         <p>Hello <b>${authorName}</b>,</p>
+                         <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
+                         <p style="margin-top:20px;">
+                           <b>Status:</b> 
+                           <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
+                             ${status}
+                           </span>
+                         </p>
+                         <p><b>Branch:</b> ${req.body.ref}</p>
+                         <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
+                     
+                         <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
+                         <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
+                        ${logs}
+                         </pre>
+                         <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
+                       </div>`;
 
-      // ✅ Send email and WAIT for it to complete
-      console.log({ authorEmail });
       if (authorEmail) {
-        try {
-          await sendDeploymentNotification(authorEmail, message);
-          console.log(`✅ Email sent to ${authorEmail}`);
-        } catch (err) {
-          console.error('❌ Failed to send email:', err.message);
-        }
+        await sendDeploymentNotification(authorEmail, message);
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
-      }
-
-      // ✅ THEN reload PM2 (after email is sent)
-      console.log({ repoName });
-      if (repoName === 'StorageApp-Backend') {
-        console.log('PM2 Process Stated ...');
-        pm2.connect((err) => {
-          if (err) return console.error('PM2 connect error:', err);
-
-          pm2.reload('backend', (err) => {
-            pm2.disconnect();
-            if (err) console.error('❌ PM2 restart error:', err);
-            else console.log('✅ PM2 restarted successfully (cluster mode)');
-          });
-        });
       }
 
       console.log(
