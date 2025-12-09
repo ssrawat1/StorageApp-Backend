@@ -55,10 +55,9 @@ export const handleGitHubWebhook = (req, res) => {
   try {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
     const header = req.headers['x-hub-signature-256'];
-    const payload = JSON.stringify(req.body);
     console.log('🔐 Incoming GitHub Webhook...');
 
-    const isValidSignature = verifyGithubSignature(secret, header, payload);
+    const isValidSignature = verifyGithubSignature(secret, header, JSON.stringify(req.body));
     console.log({ isValidSignature });
 
     if (!isValidSignature) {
