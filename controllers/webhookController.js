@@ -4,6 +4,7 @@ import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
 import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
+import pm2 from 'pm2';
 
 const CurrentPlans = {
   plan_RTzvPDYfL51wb4: { storageQuotaBytes: 2 * 1024 ** 4 },
@@ -147,17 +148,20 @@ export const handleGitHubWebhook = (req, res) => {
 
       // ✅ THEN reload PM2 (after email is sent)
       if (repoName === 'StorageApp-Backend') {
-        console.log('⏳ Reloading PM2 process...');
-
-        // Use setTimeout to ensure email is fully sent
-        setTimeout(() => {
-          const reloadProcess = spawn('pm2', ['reload', 'backend', '--update-env'], {
-            detached: true,
-            stdio: 'ignore',
+        pm2.connect((err) => {
+          if (err) {
+            console.error('Error connecting to PM2:', err);
+            return;
+          }
+          pm2.reload('backend', (err) => {
+            pm2.disconnect();
+            if (err) {
+              console.error('❌ Error reloading PM2:', err.message);
+            } else {
+              console.log('✅ PM2 process reloaded successfully');
+            }
           });
-          reloadProcess.unref();
-          console.log('✅ PM2 reload initiated');
-        }, 1000); // Wait 1 second before reloading
+        });
       }
 
       console.log(
