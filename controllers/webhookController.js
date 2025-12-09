@@ -125,8 +125,7 @@ export const handleGitHubWebhook = (req, res, next) => {
 
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
-      const message = `
-                       <div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
+      const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
                          <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
                          <p>Hello <b>${authorName}</b>,</p>
                          <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
@@ -144,8 +143,7 @@ export const handleGitHubWebhook = (req, res, next) => {
                         ${logs}
                          </pre>
                          <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-                       </div>
-                  `;
+                       </div>`;
 
       if (authorEmail) {
         await sendDeploymentNotification(authorEmail, message);
