@@ -2,7 +2,7 @@ import { verifyRzpWebhookSignature } from '../services/rzpSubscription.js';
 import { Subscription } from '../models/subscriptionModel.js';
 import { User } from '../models/userModel.js';
 import { spawn } from 'child_process';
- import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
+import { verifyGithubSignature } from '../validators/validateGithubWebhookSignature.js';
 import { sendDeploymentNotification } from '../services/sendOtpService.js';
 
 const CurrentPlans = {
@@ -72,7 +72,6 @@ export const handleGitHubWebhook = (req, res) => {
       message: 'Webhook received. Deployment started. 🚀',
     });
 
-    console.log('Github Data:', req.body);
     const author = req.body?.head_commit?.author;
     const pusher = req.body?.pusher;
 
