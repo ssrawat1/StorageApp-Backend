@@ -89,11 +89,8 @@ export const handleGitHubWebhook = (req, res) => {
         : '/home/ubuntu/deploy-backend.sh';
 
     const bashChildProcess = spawn('bash', [scriptPath], {
-      detached: true,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
-
-    bashChildProcess.unref();
 
     let logs = '';
 
@@ -150,7 +147,7 @@ export const handleGitHubWebhook = (req, res) => {
       // ✅ THEN reload PM2 (after email is sent)
       if (repoName === 'StorageApp-Backend') {
         console.log({ repoName });
-        console.log("PM2 Process Stated ...")
+        console.log('PM2 Process Stated ...');
         pm2.connect((err) => {
           if (err) {
             console.error('Error connecting to PM2:', err);
