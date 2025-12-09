@@ -162,6 +162,6 @@ export const handleGitHubWebhook = async (req, res) => {
       console.log('🔥 Failed to start deployment script', err);
     });
   } catch (error) {
-    console.log('Deployment Error:', error.message);
+    console.log('Deployment Error', error.message);
   }
 };
