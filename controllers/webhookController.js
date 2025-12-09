@@ -110,9 +110,8 @@ export const handleGitHubWebhook = (req, res) => {
     if (repoName === 'StorageApp-Backend') {
       try {
         await execPromise('pm2', ['reload', 'backend', '--update-env']);
-        logs += '\n✅ PM2 reloaded successfully\n';
       } catch (err) {
-        logs += `\n⚠️ PM2 reload error: ${err.message}\n`;
+        console.log(err.message);
       }
     }
 
