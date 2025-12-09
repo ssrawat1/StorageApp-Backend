@@ -82,7 +82,7 @@ export const handleGitHubWebhook = (req, res) => {
     console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
     const repoName = req.body.repository.name;
-    console.log({ repoName });
+    console.log({repoName,chala:"yes"})
 
     const scriptPath =
       repoName !== 'StorageApp-Backend'
