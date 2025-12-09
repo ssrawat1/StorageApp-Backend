@@ -86,7 +86,14 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    const bashChildProcess = spawn('bash', [scriptPath]);
+    // decide a simple flag
+    const flag = repoName === 'StorageApp-Backend' ? 'backend' : 'frontend';
+
+    // spawn using absolute bash and pass the flag; inherit env so script sees PATH/.env
+    const bashChildProcess = spawn('/bin/bash', [scriptPath, flag], {
+      env: process.env,
+      stdio: 'pipe',
+    });
 
     let logs = '';
 
@@ -132,12 +139,10 @@ export const handleGitHubWebhook = (req, res) => {
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
+
       if (repoName === 'StorageApp-Backend') {
         console.log('🔄 Reloading PM2 backend process...');
-        const pm2Process = spawn('/usr/bin/pm2', ['reload', 'backend'], {
-          env: process.env,
-          stdio: 'inherit', // show logs for debugging
-        });
+        spawn('/usr/bin/pm2', ['reload', 'backend'], { env: process.env, stdio: 'inherit' });
       }
 
       console.log(
