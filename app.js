@@ -24,6 +24,7 @@ const Secret_Key = process.env.SECRET_KEY;
 const PORT = process.env.PORT || 4000;
 const Client_Url_1 = process.env.CLIENT_URL_1;
 const Client_Url_2 = process.env.CLIENT_URL_2;
+
 console.log({ Client_Url_1, Client_Url_2 });
 
 app.use(
