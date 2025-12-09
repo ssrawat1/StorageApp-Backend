@@ -97,6 +97,8 @@ export const handleGitHubWebhook = (req, res) => {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
 
+  bashChildProcess.unref();
+
   let logs = '';
 
   bashChildProcess.stdout.on('data', (data) => {
@@ -166,6 +168,4 @@ ${logs}
   bashChildProcess.on('error', (err) => {
     console.log('🔥 Failed to start deployment script', err);
   });
-
-  bashChildProcess.unref();
 };
