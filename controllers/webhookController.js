@@ -80,7 +80,6 @@ export const handleGitHubWebhook = (req, res) => {
   console.log('✅ Webhook verified. Starting deployment...');
   console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
-  // ✅ FIX 2: Move this line BEFORE try block
   const repoName = req.body.repository.name;
 
   try {
@@ -123,7 +122,6 @@ export const handleGitHubWebhook = (req, res) => {
 
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
 
-      // ✅ FIX 3: Move this line inside the close event (where it's used)
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
       const message = `
