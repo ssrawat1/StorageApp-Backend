@@ -133,7 +133,13 @@ export const handleGitHubWebhook = (req, res) => {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
       if (repoName === 'StorageApp-Backend') {
-        spawn('pm2', ['reload', 'backend']);
+        console.log('🔄 Reloading PM2 backend process...');
+        const pm2Process = spawn('pm2', ['reload', 'backend'], {
+          detached: true,
+          stdio: 'ignore',
+          env: process.env,
+        });
+        pm2Process.unref(); // detach so Node keeps running
       }
 
       console.log(
