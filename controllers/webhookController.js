@@ -117,7 +117,7 @@ export const handleGitHubWebhook = (req, res) => {
     });
 
     bashChildProcess.on('close', async (code) => {
-      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+      let status = code === 0 ? 'SUCCESS' : 'FAILED';
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
       const statusColor = code === 0 ? '#4CAF50' : '#E53935';
       const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
