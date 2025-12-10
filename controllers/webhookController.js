@@ -117,7 +117,7 @@ export const handleGitHubWebhook = (req, res) => {
     });
 
     bashChildProcess.on('close', async (code) => {
-      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
+      let status = code === 0 ? '  SUCCESS' : '  FAILED';
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
       const statusColor = code === 0 ? '#4CAF50' : '#E53935';
       const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
@@ -138,7 +138,7 @@ export const handleGitHubWebhook = (req, res) => {
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">
               <h1 style="margin: 0; font-size: 28px; font-weight: 600;">🚀 ${deploymentType} Deployment</h1>
-              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment Bot</p>
+              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment</p>
             </div>
 
             <!-- Status Card -->
@@ -206,7 +206,7 @@ export const handleGitHubWebhook = (req, res) => {
                 <strong>Need help?</strong> Check our <a href="https://yourdomain.com/docs" style="color: #667eea; text-decoration: none;">deployment documentation</a>
               </p>
               <p style="margin: 10px 0 0 0; color: #bbb; font-size: 11px;">
-                © 2025 Safemystuff Deployment Bot 🤖
+                © 2025 Safemystuff Deployment
               </p>
             </div>
           </div>
