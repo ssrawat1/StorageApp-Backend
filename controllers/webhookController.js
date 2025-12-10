@@ -173,8 +173,8 @@ export const handleGitHubWebhook = (req, res) => {
                   <td style="padding: 10px 0; color: #333; font-weight: 500; font-size: 14px;">${req.body.ref}</td>
                 </tr>
                 <tr style="background-color: #f9f9f9;">
-                  <td style="padding: 10px 4px; color: #999; font-size: 13px;">Commit Message</td>
-                  <td style="padding: 10px 4px; color: #333; font-size: 14px; word-break: break-word;">${req.body?.head_commit?.message || 'N/A'}</td>
+                  <td style="padding: 10px 0; color: #999; font-size: 13px;">Commit Message</td>
+                  <td style="padding: 10px 0; color: #333; font-size: 14px; word-break: break-word;">${req.body?.head_commit?.message || 'N/A'}</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; color: #999; font-size: 13px;">Deployed At</td>
