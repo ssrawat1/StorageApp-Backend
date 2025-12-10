@@ -122,10 +122,9 @@ export const handleGitHubWebhook = (req, res) => {
       const statusColor = code === 0 ? '#4CAF50' : '#E53935';
       const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
 
-      // Truncate logs to first 1500 chars to keep email size reasonable
       const logPreview =
-        logs.length > 1500 ? logs.substring(0, 1500) + '\n\n...[logs truncated]' : logs;
-      const hasLargeLogs = logs.length > 1500;
+        logs.length > 2500 ? logs.substring(0, 2500) + '\n\n...[logs truncated]' : logs;
+      const hasLargeLogs = logs.length > 2500;
 
       const message = `
         <!DOCTYPE html>
