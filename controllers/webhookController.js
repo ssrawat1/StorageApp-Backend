@@ -144,32 +144,13 @@ export const handleGitHubWebhook = (req, res) => {
       if (repoName === 'StorageApp-Backend' && code === 0) {
         console.log('🔄 Reloading PM2 backend process...');
 
-        const reloadProcess = spawn('/usr/bin/pm2', ['reload', 'backend', '--update-env'], {
+        // Simple approach: just spawn and forget (fire and forget)
+        spawn('/usr/bin/pm2', ['reload', 'backend', '--update-env'], {
           detached: true,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        });
+          stdio: 'ignore',
+        }).unref();
 
-        reloadProcess.stdout.on('data', (data) => {
-          console.log('📋 PM2 Reload Output:', data.toString());
-        });
-
-        reloadProcess.stderr.on('data', (data) => {
-          console.error('⚠️ PM2 Reload Error:', data.toString());
-        });
-
-        reloadProcess.on('close', (reloadCode) => {
-          if (reloadCode === 0) {
-            console.log('✅ PM2 backend process reloaded successfully!');
-          } else {
-            console.error(`❌ PM2 reload failed with code ${reloadCode}`);
-          }
-        });
-
-        reloadProcess.on('error', (err) => {
-          console.error('❌ Failed to spawn PM2 reload:', err.message);
-        });
-
-        reloadProcess.unref();
+        console.log('📧 PM2 reload command sent!');
       }
 
       console.log(
