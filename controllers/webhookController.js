@@ -49,6 +49,18 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
+// Helper function to escape HTML characters in logs
+const escapeHtml = (text) => {
+  const map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
+};
+
 export const handleGitHubWebhook = (req, res) => {
   try {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
@@ -107,26 +119,99 @@ export const handleGitHubWebhook = (req, res) => {
     bashChildProcess.on('close', async (code) => {
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+      const statusColor = code === 0 ? '#4CAF50' : '#E53935';
+      const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
+      
+      // Truncate logs to first 1500 chars to keep email size reasonable
+      const logPreview = logs.length > 1500 ? logs.substring(0, 1500) + '\n\n...[logs truncated]' : logs;
+      const hasLargeLogs = logs.length > 1500;
 
-      const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
-                         <h2 style="color:#4CAF50;">🚀 ${deploymentType} Deployment Update</h2>
-                         <p>Hello <b>${authorName}</b>,</p>
-                         <p>Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.</p>
-                         <p style="margin-top:20px;">
-                           <b>Status:</b> 
-                           <span style="color:${code === 0 ? '#4CAF50' : '#E53935'};">
-                             ${status}
-                           </span>
-                         </p>
-                         <p><b>Branch:</b> ${req.body.ref}</p>
-                         <p><b>Commit Message:</b> ${req.body?.head_commit?.message}</p>
-                     
-                         <h3 style="margin-top:25px;">📄 Deployment Logs</h3>
-                         <pre style="background:#f7f7f7; padding:12px; border-radius:6px; white-space:pre-wrap; font-size:14px;">
-                        ${logs}
-                         </pre>
-                         <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
-                       </div>`;
+      const message = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
+            <!-- Header -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">
+              <h1 style="margin: 0; font-size: 28px; font-weight: 600;">🚀 ${deploymentType} Deployment</h1>
+              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment Bot</p>
+            </div>
+
+            <!-- Status Card -->
+            <div style="background-color: ${statusBgColor}; border-left: 4px solid ${statusColor}; padding: 20px; margin: 20px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="font-size: 28px;">${code === 0 ? '✅' : '❌'}</div>
+                <div>
+                  <p style="margin: 0; font-size: 12px; color: #666; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Status</p>
+                  <p style="margin: 5px 0 0 0; font-size: 20px; color: ${statusColor}; font-weight: 700;">${status}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Details Section -->
+            <div style="padding: 20px; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+              <p style="margin: 0 0 15px 0; color: #333;">
+                <span style="color: #666; font-size: 14px;">Hello</span> <b>${authorName}</b>,
+              </p>
+              <p style="margin: 0 0 20px 0; color: #666; font-size: 14px; line-height: 1.6;">
+                Your recent GitHub push triggered an automatic deployment on <b>Safemystuff</b>.
+              </p>
+
+              <!-- Info Grid -->
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 10px 0; color: #999; font-size: 13px; width: 30%;">Branch</td>
+                  <td style="padding: 10px 0; color: #333; font-weight: 500; font-size: 14px;">${req.body.ref}</td>
+                </tr>
+                <tr style="background-color: #f9f9f9;">
+                  <td style="padding: 10px 0; color: #999; font-size: 13px;">Commit Message</td>
+                  <td style="padding: 10px 0; color: #333; font-size: 14px; word-break: break-word;">${req.body?.head_commit?.message || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 0; color: #999; font-size: 13px;">Deployed At</td>
+                  <td style="padding: 10px 0; color: #333; font-weight: 500; font-size: 14px;">${new Date().toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Logs Preview Section -->
+            ${hasLargeLogs ? `
+            <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+              <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Log Preview (Truncated)</p>
+              <pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 1.4; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">${escapeHtml(logPreview)}</pre>
+              <p style="margin: 10px 0 0 0; color: #E53935; font-size: 12px; font-weight: 600;">⚠️ Logs are too large to display in email. View full logs below.</p>
+            </div>
+            ` : `
+            <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+              <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Deployment Logs</p>
+              <pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">${escapeHtml(logPreview)}</pre>
+            </div>
+            `}
+
+            <!-- CTA Button -->
+            <div style="padding: 20px; text-align: center;">
+              <a href="https://yourdomain.com/deployments/logs" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
+                📊 View Full Logs Dashboard
+              </a>
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+              <p style="margin: 0; color: #999; font-size: 12px; line-height: 1.6;">
+                <strong>Need help?</strong> Check our <a href="https://yourdomain.com/docs" style="color: #667eea; text-decoration: none;">deployment documentation</a>
+              </p>
+              <p style="margin: 10px 0 0 0; color: #bbb; font-size: 11px;">
+                © 2025 Safemystuff Deployment Bot 🤖
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
 
       // STEP 1: Send email notification
       if (authorEmail) {
@@ -143,7 +228,7 @@ export const handleGitHubWebhook = (req, res) => {
       // STEP 2: Only after email is sent, reload PM2 for backend
       if (repoName === 'StorageApp-Backend' && code === 0) {
         console.log('🔄 Reloading PM2 backend process...');
-
+        
         // Simple approach: just spawn and forget (fire and forget)
         spawn('/usr/bin/pm2', ['reload', 'backend', '--update-env'], {
           detached: true,
