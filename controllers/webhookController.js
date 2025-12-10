@@ -201,18 +201,18 @@ export const handleGitHubWebhook = (req, res) => {
             `
             }
 
-            <!-- CTA Button -->
-            <div style="padding: 20px; text-align: center;">
-              <a href="https://yourdomain.com/deployments/logs" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px; transition: transform 0.2s;">
-                📊 View Full Logs Dashboard
-              </a>
-            </div>
+            // <!-- CTA Button -->
+            // <div style="padding: 20px; text-align: center;">
+            //   <a href="https://yourdomain.com/deployments/logs" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px; transition: transform 0.2s;">
+            //     📊 View Full Logs Dashboard
+            //   </a>
+            // </div>
 
             <!-- Footer -->
             <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #eee;">
-              <p style="margin: 0; color: #999; font-size: 12px; line-height: 1.6;">
-                <strong>Need help?</strong> Check our <a href="https://yourdomain.com/docs" style="color: #667eea; text-decoration: none;">deployment documentation</a>
-              </p>
+              // <p style="margin: 0; color: #999; font-size: 12px; line-height: 1.6;">
+              //   <strong>Need help?</strong> Check our <a href="https://yourdomain.com/docs" style="color: #667eea; text-decoration: none;">deployment documentation</a>
+              // </p>
               <p style="margin: 10px 0 0 0; color: #bbb; font-size: 11px;">
                 © 2025 Safemystuff Deployment Bot 🤖
               </p>
