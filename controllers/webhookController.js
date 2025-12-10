@@ -50,6 +50,7 @@ export const handleRazorpayWebhook = async (req, res) => {
 };
 
 // Helper function to escape HTML characters in logs
+// Helper function to escape HTML characters in logs
 const escapeHtml = (text) => {
   const map = {
     '&': '&amp;',
@@ -117,7 +118,7 @@ export const handleGitHubWebhook = (req, res) => {
     });
 
     bashChildProcess.on('close', async (code) => {
-      let status = code === 0 ? 'SUCCESS' : 'FAILED';
+      let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
       const statusColor = code === 0 ? '#4CAF50' : '#E53935';
       const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
@@ -135,11 +136,11 @@ export const handleGitHubWebhook = (req, res) => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
         <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0; border-radius:10px">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">
-              <h1 style="margin: 0; font-size: 28px; font-weight: 600;">${deploymentType} Deployment</h1>
-              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment</p>
+              <h1 style="margin: 0; font-size: 28px; font-weight: 600;">🚀 ${deploymentType} Deployment</h1>
+              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment Bot</p>
             </div>
 
             <!-- Status Card -->
@@ -151,7 +152,7 @@ export const handleGitHubWebhook = (req, res) => {
                   </td>
                   <td style="padding: 0; vertical-align: middle;">
                     <p style="margin: 0; font-size: 11px; color: #666; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Deployment Status</p>
-                    <p style="text-align:center;margin: 5px 0 0 0; font-size: 22px; color: ${statusColor}; font-weight: 700;">${status}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 22px; color: ${statusColor}; font-weight: 700;">${status}</p>
                   </td>
                 </tr>
               </table>
@@ -200,11 +201,14 @@ export const handleGitHubWebhook = (req, res) => {
             </div>
             `
             }
+
             <!-- Footer -->
             <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #eee;">
-               
+              <p style="margin: 0; color: #999; font-size: 12px; line-height: 1.6;">
+                <strong>Need help?</strong> Check our <a href="https://yourdomain.com/docs" style="color: #667eea; text-decoration: none;">deployment documentation</a>
+              </p>
               <p style="margin: 10px 0 0 0; color: #bbb; font-size: 11px;">
-                © 2025 Safemystuff Deployment
+                © 2025 Safemystuff Deployment Bot 🤖
               </p>
             </div>
           </div>
