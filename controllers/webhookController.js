@@ -80,7 +80,6 @@ export const handleGitHubWebhook = (req, res) => {
     console.log(`📧 Deployment triggered by: ${authorName} (${authorEmail})`);
 
     const repoName = req.body.repository.name;
-
     console.log({ repoName });
 
     const scriptPath =
@@ -88,6 +87,7 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
+    // Only spawn the deployment script, don't reload yet
     const bashChildProcess = spawn('bash', [scriptPath]);
 
     let logs = '';
@@ -105,16 +105,7 @@ export const handleGitHubWebhook = (req, res) => {
     });
 
     bashChildProcess.on('close', async (code) => {
-      if (repoName === 'StorageApp-Backend') {
-        try {
-          // await execPromise('pm2', ['reload', 'backend', '--update-env']);
-        } catch (err) {
-          console.log('Error while reloading PM2 process:', err.message);
-        }
-      }
-
       let status = code === 0 ? '✔ SUCCESS' : '❌ FAILED';
-
       const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
 
       const message = `<div style="font-family:Arial, sans-serif; padding:20px; border:1px solid #eee; border-radius:10px;">
@@ -137,15 +128,18 @@ export const handleGitHubWebhook = (req, res) => {
                          <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
                        </div>`;
 
+      // FIRST: Send email notification
       if (authorEmail) {
         await sendDeploymentNotification(authorEmail, message);
+        console.log('✅ Email sent to', authorEmail);
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
 
+      // SECOND: Only after email is sent, reload PM2 for backend
       if (repoName === 'StorageApp-Backend') {
         console.log('🔄 Reloading PM2 backend process...');
-        spawn('bash', [scriptPath, 'backend']);
+        spawn('bash', ['-c', 'pm2 reload backend']);
       }
 
       console.log(
