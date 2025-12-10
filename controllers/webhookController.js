@@ -132,7 +132,7 @@ export const handleGitHubWebhook = (req, res) => {
       if (authorEmail) {
         try {
           await sendDeploymentNotification(authorEmail, message);
-          console.log('✅ Email sent successfully to', authorEmail);
+          console.log('✅ Email sent successfully to:', authorEmail);
         } catch (emailErr) {
           console.error('❌ Email sending failed:', emailErr.message);
         }
