@@ -123,8 +123,8 @@ export const handleGitHubWebhook = (req, res) => {
       const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
 
       const logPreview =
-        logs.length > 2500 ? logs.substring(0, 2500) + '\n\n...[logs truncated]' : logs;
-      const hasLargeLogs = logs.length > 2500;
+        logs.length > 5000 ? logs.substring(0, 5000) + '\n\n...[logs truncated]' : logs;
+      const hasLargeLogs = logs.length > 5000;
 
       const message = `
         <!DOCTYPE html>
@@ -189,7 +189,7 @@ export const handleGitHubWebhook = (req, res) => {
             <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
               <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Log Preview (Truncated)</p>
               <pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 1.4; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">${escapeHtml(logPreview)}</pre>
-              <p style="margin: 10px 0 0 0; color: #E53935; font-size: 12px; font-weight: 600;">⚠️ Logs are too large to display in email. View full logs below.</p>
+              <p style="margin: 10px 0 0 0; color: #E53935; font-size: 12px; font-weight: 600;">⚠️ Logs are too large to display in email</p>
             </div>
             `
                 : `
