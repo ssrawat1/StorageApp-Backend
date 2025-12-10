@@ -143,7 +143,7 @@ export const handleGitHubWebhook = (req, res) => {
       // STEP 2: Only after email is sent, reload PM2 for backend
       if (repoName === 'StorageApp-Backend' && code === 0) {
         console.log('🔄 Reloading PM2 backend process...');
-        
+
         const reloadProcess = spawn('/usr/bin/pm2', ['reload', 'backend', '--update-env'], {
           detached: true,
           stdio: ['ignore', 'pipe', 'pipe'],
