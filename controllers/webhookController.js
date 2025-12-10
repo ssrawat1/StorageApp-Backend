@@ -193,7 +193,7 @@ export const handleGitHubWebhook = (req, res) => {
             </div>
             `
                 : `
-            <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+            <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;text-align:center">
               <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Deployment Logs</p>
               <pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">${escapeHtml(logPreview)}</pre>
             </div>
