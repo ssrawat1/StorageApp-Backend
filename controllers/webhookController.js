@@ -87,7 +87,7 @@ export const handleGitHubWebhook = (req, res) => {
         ? '/home/ubuntu/deploy-frontend.sh'
         : '/home/ubuntu/deploy-backend.sh';
 
-    // Only spawn the deployment script, don't reload yet
+    // Spawn the deployment script
     const bashChildProcess = spawn('bash', [scriptPath]);
 
     let logs = '';
@@ -128,18 +128,48 @@ export const handleGitHubWebhook = (req, res) => {
                          <p style="margin-top:20px;">Thanks,<br>Safemystuff Deployment Bot 🤖</p>
                        </div>`;
 
-      // FIRST: Send email notification
+      // STEP 1: Send email notification
       if (authorEmail) {
-        await sendDeploymentNotification(authorEmail, message);
-        console.log('✅ Email sent to', authorEmail);
+        try {
+          await sendDeploymentNotification(authorEmail, message);
+          console.log('✅ Email sent successfully to', authorEmail);
+        } catch (emailErr) {
+          console.error('❌ Email sending failed:', emailErr.message);
+        }
       } else {
         console.log('⚠️ No author email found! Cannot send notification.');
       }
 
-      // SECOND: Only after email is sent, reload PM2 for backend
-      if (repoName === 'StorageApp-Backend') {
+      // STEP 2: Only after email is sent, reload PM2 for backend
+      if (repoName === 'StorageApp-Backend' && code === 0) {
         console.log('🔄 Reloading PM2 backend process...');
-        spawn('bash', ['-c', 'pm2 reload backend']);
+        
+        const reloadProcess = spawn('/usr/bin/pm2', ['reload', 'backend', '--update-env'], {
+          detached: true,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+
+        reloadProcess.stdout.on('data', (data) => {
+          console.log('📋 PM2 Reload Output:', data.toString());
+        });
+
+        reloadProcess.stderr.on('data', (data) => {
+          console.error('⚠️ PM2 Reload Error:', data.toString());
+        });
+
+        reloadProcess.on('close', (reloadCode) => {
+          if (reloadCode === 0) {
+            console.log('✅ PM2 backend process reloaded successfully!');
+          } else {
+            console.error(`❌ PM2 reload failed with code ${reloadCode}`);
+          }
+        });
+
+        reloadProcess.on('error', (err) => {
+          console.error('❌ Failed to spawn PM2 reload:', err.message);
+        });
+
+        reloadProcess.unref();
       }
 
       console.log(
