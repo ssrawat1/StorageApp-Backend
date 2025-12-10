@@ -135,7 +135,7 @@ export const handleGitHubWebhook = (req, res) => {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
         </head>
         <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0; border-radius:10px">
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px 10px; text-align: center; color: white;">
               <h1 style="margin: 0; font-size: 28px; font-weight: 600;">${deploymentType} Deployment</h1>
