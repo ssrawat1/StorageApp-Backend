@@ -138,8 +138,8 @@ export const handleGitHubWebhook = (req, res) => {
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">
-              <h1 style="margin: 0; font-size: 28px; font-weight: 600;">🚀 ${deploymentType} Deployment</h1>
-              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment Bot</p>
+              <h1 style="margin: 0; font-size: 28px; font-weight: 600;">${deploymentType} Deployment</h1>
+              <p style="margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">Safemystuff Deployment</p>
             </div>
 
             <!-- Status Card -->
@@ -204,7 +204,7 @@ export const handleGitHubWebhook = (req, res) => {
             <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #eee;">
                
               <p style="margin: 10px 0 0 0; color: #bbb; font-size: 11px;">
-                © 2025 Safemystuff Deployment Bot 🤖
+                © 2025 Safemystuff Deployment
               </p>
             </div>
           </div>
