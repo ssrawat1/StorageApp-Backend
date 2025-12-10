@@ -201,10 +201,7 @@ export const handleGitHubWebhook = (req, res) => {
             }
 
             <!-- Footer -->
-            <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #eee;">
-              <p style="margin: 0; color: #999; font-size: 12px; line-height: 1.6;">
-                <strong>Need help?</strong> Check our <a href="https://yourdomain.com/docs" style="color: #667eea; text-decoration: none;">deployment documentation</a>
-              </p>
+            <div style="background-color: #f9f9f9; padding: 10px; text-align: center; border-top: 1px solid #eee;">
               <p style="margin: 10px 0 0 0; color: #bbb; font-size: 11px;">
                 © 2025 Safemystuff Deployment
               </p>
