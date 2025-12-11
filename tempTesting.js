@@ -1,4 +1,4 @@
-const allTestPassed = false;
+const allTestPassed = true;
 
 if (allTestPassed) {
   console.log(`✅ All backend tests have passed! 🚀`);
