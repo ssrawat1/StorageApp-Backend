@@ -49,18 +49,6 @@ export const handleRazorpayWebhook = async (req, res) => {
   }
 };
 
-// Helper function to escape HTML characters in logs
-const escapeHtml = (text) => {
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  };
-  return text.replace(/[&<>"']/g, (m) => map[m]);
-};
-
 export const handleGitHubWebhook = (req, res) => {
   try {
     const secret = process.env.GITHUB_WEBHOOK_SECRET;
@@ -108,25 +96,28 @@ export const handleGitHubWebhook = (req, res) => {
 
     bashChildProcess.stdout.on('data', (data) => {
       const output = data.toString();
-      logs += output;
+      if (output.includes('passed') || output.includes('failed')) {
+         logs += output;
+       }
       process.stdout.write(`📄 OUTPUT: ${data}`);
     });
 
     bashChildProcess.stderr.on('data', (data) => {
       const output = data.toString();
-      logs += output;
+       if (output.includes('passed') || output.includes('failed')) {
+          logs += output;
+  }
       process.stderr.write(`⚠️ ERROR: ${data}`);
     });
 
     bashChildProcess.on('close', async (code) => {
-      let status = code === 0 ? '  SUCCESS' : '  FAILED';
-      const deploymentType = repoName === 'StorageApp-Backend' ? 'Backend' : 'Frontend';
+       let status = code === 0 ? '  SUCCESS' : '  FAILED';
+      const deploymentType = repoName === 'backend' ? 'Backend' : 'Frontend';
       const statusColor = code === 0 ? '#4CAF50' : '#E53935';
-      const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';
-
-      const logPreview =
-        logs.length > 5000 ? logs.substring(0, 5000) + '\n\n...[logs truncated]' : logs;
-      const hasLargeLogs = logs.length > 5000;
+      const statusBgColor = code === 0 ? '#E8F5E9' : '#FFEBEE';       
+        logs +=  code === 0
+          ? '🎉 Deployment completed successfully!'
+          : `❌ Deployment failed with code ${code}`
 
       const message = `
         <!DOCTYPE html>
@@ -185,22 +176,11 @@ export const handleGitHubWebhook = (req, res) => {
             </div>
 
             <!-- Logs Preview Section -->
-            ${
-              hasLargeLogs
-                ? `
-            <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
-              <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Log Preview (Truncated)</p>
-              <pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 1.4; max-height: 300px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">${escapeHtml(logPreview)}</pre>
-              <p style="margin: 10px 0 0 0; color: #E53935; font-size: 12px; font-weight: 600;">⚠️ Logs are too large to display in email</p>
+            <div style="text-align: center; padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+              <p style="margin: 0 0 15px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Deployment Logs</p>
+              <pre style="background: #f4f4f4; padding: 20px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 2; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd; border-left: 4px solid #667eea; font-family: 'Courier New', monospace; max-height: 300px; overflow-y: auto; text-align: left; letter-spacing: 0.3px;">${logs}</pre>
             </div>
-            `
-                : `
-            <div style="padding: 20px; background-color: #fafafa; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
-              <p style="margin: 0 0 10px 0; color: #666; font-size: 13px; font-weight: 600; text-transform: uppercase;">📄 Deployment Logs</p>
-              <pre style="background: #f4f4f4; padding: 12px; border-radius: 4px; font-size: 12px; color: #333; margin: 0; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; border: 1px solid #ddd;">${escapeHtml(logPreview)}</pre>
-            </div>
-            `
-            }
+
             <!-- Footer -->
             <div style="background-color: #f9f9f9; padding: 10px; text-align: center; border-top: 1px solid #eee;">
               <p style="margin: 10px 0; color: #bbb; font-size: 11px;">
