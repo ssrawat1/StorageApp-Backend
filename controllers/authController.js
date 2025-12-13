@@ -116,7 +116,7 @@ export const loginWithGoogle = async (req, res, next) => {
         sameSite: 'lax',
         maxAge: 60 * 1000 * 60 * 24 * 7,
       });
-      return res.json({ message: 'logged in', user });
+      return res.statue(201).json({ message: 'logged in', isLoggedIn: true });
     }
 
     const rootDirId = new mongoose.Types.ObjectId();
@@ -169,7 +169,7 @@ export const loginWithGoogle = async (req, res, next) => {
 
     // If no errors, commit the transaction
     await clientSession.commitTransaction();
-    return res.status(201).json({ message: 'Account created and logged in' });
+    return res.status(201).json({ message: 'Account created and logged in', isLoggedIn: true });
   } catch (error) {
     await clientSession.abortTransaction();
     console.error('Error in loginWithGoogle:', error);
