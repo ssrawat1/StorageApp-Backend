@@ -64,7 +64,6 @@ export const loginWithGoogle = async (req, res, next) => {
 
     //finding existing user
     const user = await User.findOne({ email }).select('-__v');
-    console.log({user})
     if (user) {
       /* create Session */
       if (user?.isDeleted) {
@@ -120,7 +119,6 @@ export const loginWithGoogle = async (req, res, next) => {
       });
       return res.status(201).json({ message: 'logged in', isLoggedIn: true });
     }
-   console.log({user:"No User"})
     const rootDirId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId();
 
