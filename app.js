@@ -25,24 +25,25 @@ const PORT = process.env.PORT || 4000;
 const Client_Url_1 = process.env.CLIENT_URL_1;
 const Client_Url_2 = process.env.CLIENT_URL_2;
 
+const allowedOrigins = [Client_Url_1, Client_Url_2];
+
 app.use(
   helmet({
+    crossOriginResourcePolicy: { policy: "same-site" },
     contentSecurityPolicy: {
-      useDefaults: true,
       directives: {
-        reportUri: '/csp-violation-report',
+        reportUri: ["/csp-violation-report"],
+        frameAncestors: ["'self'", ...allowedOrigins],
       },
     },
   })
 );
 
-const whitelist = [Client_Url_1, Client_Url_2];
-
 app.use(
   cors({
     origin: function (origin, callback) {
       console.log({ origin });
-      if (!origin || whitelist.indexOf(origin) !== -1) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
