@@ -118,7 +118,7 @@ export const loginWithGoogle = async (req, res, next) => {
         sameSite: 'lax',
         maxAge: 60 * 1000 * 60 * 24 * 7,
       });
-      return res.statue(201).json({ message: 'logged in', isLoggedIn: true });
+      return res.status(201).json({ message: 'logged in', isLoggedIn: true });
     }
    console.log({user:"No User"})
     const rootDirId = new mongoose.Types.ObjectId();
