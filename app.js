@@ -30,6 +30,7 @@ const allowedOrigins = [Client_Url_1, Client_Url_2];
 app.use(
   helmet({
     crossOriginResourcePolicy: { policy: "same-site" },
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     contentSecurityPolicy: {
       directives: {
         reportUri: ["/csp-violation-report"],
