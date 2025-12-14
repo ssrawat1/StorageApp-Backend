@@ -28,11 +28,12 @@ const Client_Url_2 = process.env.CLIENT_URL_2;
 app.use(
   helmet({
     contentSecurityPolicy: {
-      useDefaults: true,
       directives: {
-        reportUri: '/csp-violation-report',
-      },
-    },
+        scriptSrc: ["'self'", "https://apis.google.com", "https://accounts.google.com"],
+        connectSrc: ["'self'", "https://accounts.google.com", "https://oauth2.googleapis.com"],
+        frameSrc: ["'self'", "https://accounts.google.com"],
+      }
+    }
   })
 );
 
