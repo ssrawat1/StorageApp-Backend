@@ -64,6 +64,7 @@ export const loginWithGoogle = async (req, res, next) => {
 
     //finding existing user
     const user = await User.findOne({ email }).select('-__v');
+    clientSession.startTransaction();
     if (user) {
       /* create Session */
       if (user?.isDeleted) {
@@ -122,7 +123,6 @@ export const loginWithGoogle = async (req, res, next) => {
     const rootDirId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId();
 
-    clientSession.startTransaction();
     await Directory.insertOne(
       {
         _id: rootDirId,
@@ -238,6 +238,9 @@ export const loginWithGithub = async (req, res, next) => {
     //finding existing user
     const user = await User.findOne({ email: verifiedEmail }).select('-__v');
 
+    clientSession.startTransaction();
+
+
     if (user) {
       /* create Session */
       if (user?.isDeleted) {
@@ -281,13 +284,12 @@ export const loginWithGithub = async (req, res, next) => {
         sameSite: 'lax',
         maxAge: 60 * 1000 * 60 * 24 * 7,
       });
-      return res.json({ message: 'logged in', user });
+      return res.status(201).json({ message: 'logged in', isLoggedIn: true });
     }
 
     const rootDirId = new mongoose.Types.ObjectId();
     const userId = new mongoose.Types.ObjectId();
 
-    clientSession.startTransaction();
     await Directory.insertOne(
       {
         _id: rootDirId,
@@ -335,8 +337,9 @@ export const loginWithGithub = async (req, res, next) => {
 
     // If no errors, commit the transaction
     await clientSession.commitTransaction();
-    return res.status(201).json({ message: 'Account created and logged in' });
+    return res.status(201).json({ message: 'Account created and logged in', isLoggedIn: true });
   } catch (error) {
+    console.log(error)
     await clientSession.abortTransaction();
     console.error('Error in loginWithGithub:', error);
     next(error);
