@@ -176,6 +176,8 @@ export const loginWithGoogle = async (req, res, next) => {
     await clientSession.abortTransaction();
     console.error('Error in loginWithGoogle:', error);
     next(error);
+  } finally {
+    await clientSession.endSession()
   }
 };
 
@@ -343,5 +345,7 @@ export const loginWithGithub = async (req, res, next) => {
     await clientSession.abortTransaction();
     console.error('Error in loginWithGithub:', error);
     next(error);
+  } finally {
+    await clientSession.endSession()
   }
 };

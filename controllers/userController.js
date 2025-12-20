@@ -22,6 +22,7 @@ export const register = async (req, res, next) => {
   }
   const { name, email, password, otp } = validateData;
   console.log(otp);
+  const session = await mongoose.startSession();
   try {
     const user = await User.findOne({ email }).select('email isDeleted -_id');
 
@@ -37,56 +38,49 @@ export const register = async (req, res, next) => {
     }
 
     await otpRecord.deleteOne();
-    const session = await mongoose.startSession();
+    // Start a session
+
+    // const hassedPassword = await bcrypt.hash(password, 12);
+    const rootDirId = new mongoose.Types.ObjectId(); //new ObjectId=>in mongoDB
+    const userId = new mongoose.Types.ObjectId();
+    // const foundUser = await User.findOne({ email }).lean(); // create index for this to optimize the performance of the  our application
+    // if (foundUser) {
+    //   return res.status(409).json({
+    //     error: 'User already exists',
+    //     message:
+    //       'A user with this email address already exists. Please try logging in or use a different email.',
+    //   });
+    // }
+    /* dirId automatically created by mongodb */
+
     session.startTransaction();
-    try {
-      // Start a session
+    await Directory.insertOne(
+      {
+        _id: rootDirId,
+        name: `root-${email}`,
+        parentDirId: null,
+        userId,
+      },
+      { session }
+    );
+    /* userId automatically created by mongodb: */
+    await User.insertOne(
+      {
+        _id: userId,
+        name,
+        email,
+        password,
+        rootDirId,
+      },
+      { session }
+    );
+    // If no errors, commit the transaction
+    await session.commitTransaction();
 
-      // const hassedPassword = await bcrypt.hash(password, 12);
-      const rootDirId = new mongoose.Types.ObjectId(); //new ObjectId=>in mongoDB
-      const userId = new mongoose.Types.ObjectId();
-      // const foundUser = await User.findOne({ email }).lean(); // create index for this to optimize the performance of the  our application
-      // if (foundUser) {
-      //   return res.status(409).json({
-      //     error: 'User already exists',
-      //     message:
-      //       'A user with this email address already exists. Please try logging in or use a different email.',
-      //   });
-      // }
-      /* dirId automatically created by mongodb */
-
-      await Directory.insertOne(
-        {
-          _id: rootDirId,
-          name: `root-${email}`,
-          parentDirId: null,
-          userId,
-        },
-        { session }
-      );
-      /* userId automatically created by mongodb: */
-      await User.insertOne(
-        {
-          _id: userId,
-          name,
-          email,
-          password,
-          rootDirId,
-        },
-        { session }
-      );
-      // If no errors, commit the transaction
-      await session.commitTransaction();
-
-      return res.status(201).json({ message: 'User Registered' });
-    } catch (transactionErr) {
-      await session.abortTransaction();
-      throw transactionErr
-    } finally {
-      await session.endSession()
-    }
+    return res.status(201).json({ message: 'User Registered' });
   } catch (err) {
     console.log(err);
+    await session.abortTransaction();
     // If any error occurs, rollback the transaction
     // if (err.code === 121) {
     //   return res.status(404).json({ error: 'invalid fields please enter valid details' });
@@ -100,6 +94,8 @@ export const register = async (req, res, next) => {
     //   }
     // }
     next(err);
+  } finally {
+    await session.endSession()
   }
 };
 
