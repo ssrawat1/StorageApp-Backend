@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 export async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGO_DB_URL);
-    console.log('Database Connected');
+    console.log('Connected successfully to Mongodb');
   } catch (err) {
     console.error('mongodb connection error', err);
     process.exit(1);
@@ -28,7 +28,7 @@ process.on('SIGINT', async () => {
 // }
 
 // /* triggered when you manually stop the Node process (Ctrl + C) */
-// process.on('SIGINT', async () => { //SIGINT=> signal intrupt
+// process.on('SIGINT', async () => { //SIGINT=> signal interrupt
 //   await client.close();
 //   console.log('client disconnected');
 //   process.exit();
