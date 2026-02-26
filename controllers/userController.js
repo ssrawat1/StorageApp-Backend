@@ -99,7 +99,7 @@ export const register = async (req, res, next) => {
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   const cleanInput = sanitizeUserInput(req.body);
   console.log('Clean Login Input:', cleanInput);
 
@@ -111,96 +111,104 @@ export const login = async (req, res) => {
   }
 
   let { email, password } = validateData;
-  const user = await User.findOne({ email });
+  try {
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res
-      .status(404)
-      .json({ error: 'No account found with this email. Please create an account first.' });
-  }
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: 'No account found with this email. Please create an account first.' });
+    }
 
-  if (user.isDeleted) {
-    return res
-      .status(403)
-      .json({ error: 'Your account has been deleted. Contact the app owner to recover.' });
-  }
+    if (user.isDeleted) {
+      return res
+        .status(403)
+        .json({ error: 'Your account has been deleted. Contact the app owner to recover.' });
+    }
 
-  if (user.provider) {
-    return res.status(409).json({
-      error: `You already logged in with ${user.provider}. Please continue with ${user.provider}.`,
+    if (user.provider) {
+      return res.status(409).json({
+        error: `You already logged in with ${user.provider}. Please continue with ${user.provider}.`,
+      });
+    }
+
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return res.status(404).json({ error: 'Invalid credentials' });
+    }
+
+    // const allSession = await Session.find({ userId: user._id });
+    // console.log('All Sesson Length:', allSession.length);
+
+    // if (allSession.length >= 2) {
+    //   await allSession[0].deleteOne();
+    // }
+
+    const allSession = await redisClient.ft.search('userIdIdx', `@userId:{${user.id}}`, {
+      RETURN: [],
     });
+
+    console.log(allSession);
+
+    console.log(allSession);
+    const Max_DEVICES = process.env.MAX_DEVICES;
+
+    if (allSession.total >= Max_DEVICES) {
+      await redisClient.del(allSession.documents[0].id);
+    }
+
+    const sessionId = crypto.randomUUID();
+
+    const redisKey = `session:${sessionId}`;
+    await redisClient.json.set(redisKey, '$', {
+      userId: user._id,
+      rootDirId: user.rootDirId,
+      role: user.role,
+    });
+
+    await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
+
+    // const cookiesPayload = JSON.stringify({
+    //   id: user._id.toString(),
+    //   expiry: Math.round(Date.now() / 1000 + 60 * 60 * 24 * 7),
+    // });
+
+    res.cookie('sid', sessionId, {
+      domain: '.safemystuff.store',
+      httpOnly: true,
+      signed: true,
+      sameSite: 'lax',
+      secure: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // time in ms
+    });
+
+    return res.json({ message: 'Logged In' });
+  } catch (error) {
+    next(error)
   }
-
-  // const isPasswordValid = await bcrypt.compare(password, user.password);
-  const isPasswordValid = await user.comparePassword(password);
-
-  if (!isPasswordValid) {
-    return res.status(404).json({ error: 'Invalid credentials' });
-  }
-
-  // const allSession = await Session.find({ userId: user._id });
-  // console.log('All Sesson Length:', allSession.length);
-
-  // if (allSession.length >= 2) {
-  //   await allSession[0].deleteOne();
-  // }
-
-  const allSession = await redisClient.ft.search('userIdIdx', `@userId:{${user.id}}`, {
-    RETURN: [],
-  });
-
-  console.log(allSession);
-
-  console.log(allSession);
-  const Max_DEVICES = process.env.MAX_DEVICES;
-
-  if (allSession.total >= Max_DEVICES) {
-    await redisClient.del(allSession.documents[0].id);
-  }
-
-  const sessionId = crypto.randomUUID();
-
-  const redisKey = `session:${sessionId}`;
-  await redisClient.json.set(redisKey, '$', {
-    userId: user._id,
-    rootDirId: user.rootDirId,
-    role: user.role,
-  });
-
-  await redisClient.expire(redisKey, 60 * 60 * 24 * 7);
-
-  // const cookiesPayload = JSON.stringify({
-  //   id: user._id.toString(),
-  //   expiry: Math.round(Date.now() / 1000 + 60 * 60 * 24 * 7),
-  // });
-
-  res.cookie('sid', sessionId, {
-    domain: '.safemystuff.store',
-    httpOnly: true,
-    signed: true,
-    sameSite: 'lax',
-    secure: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // time in ms
-  });
-
-  return res.json({ message: 'Logged In' });
 };
 
-export const logout = async (req, res) => {
+export const logout = async (req, res, next) => {
   const { sid } = req.signedCookies;
-  const session = await redisClient.del(`session:${sid}`); // delete the user session if he has been logout
-  console.log(session);
-  // res.set({
-  //   "Set-Cookie":""
-  // })
-  // res.cookie('uid', '', {
-  //   maxAge: 0,
-  // });
-  res.clearCookie('sid');
+  try {
+    const session = await redisClient.del(`session:${sid}`); // delete the user session if he has been logout
+    console.log(session);
+    // res.set({
+    //   "Set-Cookie":""
+    // })
+    // res.cookie('uid', '', {
+    //   maxAge: 0,
+    // });
+    res.clearCookie('sid');
 
-  res.status(204).json({
-    message: 'Logged Out!',
-  });
+    res.status(204).json({
+      message: 'Logged Out!',
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
 export const logoutAll = async (req, res, next) => {
@@ -220,19 +228,23 @@ export const logoutAll = async (req, res, next) => {
   }
 };
 
-export const getCurrentUser = async (req, res) => {
+export const getCurrentUser = async (req, res, next) => {
   const { _id } = req.user;
-  const { name, email, pictureUrl, role, rootDirId, storageLimit } =
-    await User.findById(_id).lean();
-  const rootDir = await Directory.findById(rootDirId).lean();
-  res.status(200).json({
-    name,
-    email,
-    pictureUrl,
-    role,
-    storageUsed: rootDir.size,
-    storageLimit,
-  });
+  try {
+    const { name, email, pictureUrl, role, rootDirId, storageLimit } =
+      await User.findById(_id).lean();
+    const rootDir = await Directory.findById(rootDirId).lean();
+    res.status(200).json({
+      name,
+      email,
+      pictureUrl,
+      role,
+      storageUsed: rootDir.size,
+      storageLimit,
+    });
+  } catch (error) {
+    next(error)
+  }
 };
 
 {

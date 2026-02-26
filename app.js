@@ -42,8 +42,7 @@ app.use(
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log({ origin });
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -65,7 +64,7 @@ const limiter = rateLimit({
   message: 'Too many request,Please wait',
 });
 
-// app.use(limiter, throttle(2000, 1));
+app.use(limiter, throttle(2000, 1));
 
 /* Attach DB with Each Request: */
 // app.use((req, res, next) => {
@@ -85,8 +84,7 @@ app.get(['/', '/health'], (req, res) => {
 
 /* Testing End Point: */
 app.get('/error', (req, res) => {
-  console.log('process exist with error');
-  process.exit(1);
+   process.exit(1);
 });
 
 app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specific middleware directory or /file
@@ -100,8 +98,7 @@ app.post(
   '/csp-violation-report',
   express.json({ type: 'application/csp-violation-report' }),
   (req, res, next) => {
-    console.log(req.body);
-    return res.json({ error: 'csp violation' });
+     return res.json({ error: 'csp violation' });
   }
 );
 
