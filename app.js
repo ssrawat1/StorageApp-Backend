@@ -36,13 +36,20 @@ app.use(
         frameAncestors: ["'self'", ...allowedOrigins],
       },
     },
+    permissionsPolicy: {
+      directives: {
+        camera: [],
+        microphone: [],
+        geolocation: [],
+      },
+    },
   })
 );
 
 app.use(
   cors({
     origin: function (origin, callback) {
-       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -57,7 +64,7 @@ app.use(express.json());
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 45,
+  limit: 15,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   statusCode: 429,
@@ -84,7 +91,7 @@ app.get(['/', '/health'], (req, res) => {
 
 /* Testing End Point: */
 app.get('/error', (req, res) => {
-   process.exit(1);
+  process.exit(1);
 });
 
 app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specific middleware directory or /file
@@ -98,7 +105,7 @@ app.post(
   '/csp-violation-report',
   express.json({ type: 'application/csp-violation-report' }),
   (req, res, next) => {
-     return res.json({ error: 'csp violation' });
+    return res.json({ error: 'csp violation' });
   }
 );
 
