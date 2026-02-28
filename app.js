@@ -76,7 +76,6 @@ const throttle = slowDown({
   delayAfter: 1
 })
 
-app.use(limiter, throttle);
 
 /* Attach DB with Each Request: */
 // app.use((req, res, next) => {
@@ -103,7 +102,7 @@ app.use('/directory', checkAuth, directoryRoutes); // checkAuth is route specifi
 app.use('/file', checkAuth, fileRoutes); // checkAuth is route specific middleware directory or /file
 app.use(userRoutes);
 app.use('/subscriptions', checkAuth, rzpSubscriptionRoutes);
-app.use('/auth', authRoutes);
+app.use('/auth', limiter, throttle, authRoutes);
 app.use('/webhooks', webhookRoutes);
 
 app.post(

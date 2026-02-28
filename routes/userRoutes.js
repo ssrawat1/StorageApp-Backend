@@ -15,14 +15,30 @@ import {
   deleteById,
   changeUserRole,
 } from '../controllers/userController.js';
+import { rateLimit } from 'express-rate-limit';
+import { slowDown } from '../middlewares/throttleMiddleware.js';
 
 const router = express.Router();
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 45,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  statusCode: 429,
+  message: 'Too many request,Please wait',
+});
+
+const throttle = slowDown({
+  waitTime: 2000,
+  delayAfter: 1
+})
+
 /* Register */
-router.post('/user/register', register);
+router.post('/user/register', limiter,throttle, register);
 
 /* Login: */
-router.post('/user/login', login);
+router.post('/user/login', limiter,throttle, login);
 
 /* user route for checking user is loggedIn or not*/
 router.get('/user', checkAuth, getCurrentUser);
