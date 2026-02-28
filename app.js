@@ -76,7 +76,7 @@ const throttle = slowDown({
   delayAfter: 1
 })
 
-app.use(limiter, throttle(2000, 1));
+app.use(limiter, throttle);
 
 /* Attach DB with Each Request: */
 // app.use((req, res, next) => {
