@@ -1,4 +1,4 @@
-export function throttle(waitTime, delayAfter = 1) {
+export function slowDown({ waitTime, delayAfter }) {
   const clientData = {};
 
   return (req, res, next) => {
@@ -15,7 +15,7 @@ export function throttle(waitTime, delayAfter = 1) {
     }
 
     const data = clientData[ip];
- 
+
     // Allow N fast requests per IP
     if (data.remainingFastRequests > 0) {
       data.remainingFastRequests--;

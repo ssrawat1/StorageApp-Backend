@@ -11,7 +11,7 @@ import checkAuth from './middlewares/authMiddleware.js';
 import { connectDB } from './config/db.js';
 import helmet from 'helmet';
 import { rateLimit } from 'express-rate-limit';
-import { throttle } from './middlewares/throttleMiddleware.js';
+import { slowDown } from './middlewares/throttleMiddleware.js';
 import webhookRoutes from './routes/webhookRoutes.js';
 
 /* Connecting with mongodb */
@@ -70,6 +70,11 @@ const limiter = rateLimit({
   statusCode: 429,
   message: 'Too many request,Please wait',
 });
+
+const throttle = slowDown({
+  waitTime: 2000,
+  delayAfter: 1
+})
 
 app.use(limiter, throttle(2000, 1));
 
