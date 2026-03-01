@@ -176,7 +176,6 @@ export const login = async (req, res, next) => {
     // });
 
     res.cookie('sid', sessionId, {
-      domain: '.safemystuff.store',
       httpOnly: true,
       signed: true,
       sameSite: 'lax',
