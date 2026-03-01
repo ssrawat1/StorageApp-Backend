@@ -97,34 +97,60 @@ Safemystuff Backend is designed for secure file storage with:
 backend
 ├── config
 │   ├── db.js
-│   └── redis.js
+│   ├── redis.js
+│   └── setUp.js
+│
 ├── controllers
 │   ├── authController.js
+│   ├── directoryController.js
+│   ├── fileController.js
+│   ├── subscriptionController.js
 │   ├── userController.js
-│   └── fileController.js
+│   └── webhookController.js
+│
 ├── middlewares
 │   ├── authMiddleware.js
-│   └── throttleMiddleware.js
+│   ├── throttleMiddleware.js
+│   └── validateIdMiddleware.js
+│
 ├── models
-│   ├── userModel.js
+│   ├── directoryModel.js
 │   ├── fileModel.js
-│   └── sessionModel.js
+│   ├── otpModel.js
+│   ├── sessionModel.js
+│   ├── subscriptionModel.js
+│   └── userModel.js
+│
+├── public
+│
 ├── routes
 │   ├── authRoutes.js
+│   ├── directoryRoutes.js
+│   ├── fileRoutes.js
+│   ├── subscriptionRoutes.js
 │   ├── userRoutes.js
-│   └── fileRoutes.js
+│   └── webhookRoutes.js
+│
 ├── services
-│   ├── razorpayService.js
-│   └── s3Service.js
+│   ├── cloudFront.js
+│   ├── googleAuthService.js
+│   ├── rzpSubscription.js
+│   ├── s3.js
+│   └── sendOtpService.js
+│
 ├── utils
-│   ├── validateDirectorySize.js
-│   └── cloudFront.js
+│   └── updateDirectorySize.js
+│
 ├── validators
 │   ├── authSchema.js
-│   └── sanitizeUserInput.js
+│   ├── sanitizeUserInput.js
+│   └── validateGithubWebhookSignature.js
+│
 ├── .env
+├── .gitignore
+├── app.js
 ├── package.json
-└── README.md
+└── package-lock.json
 ```
 
 ---
