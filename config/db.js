@@ -17,7 +17,7 @@ process.on('SIGINT', async () => {
 
 // import { MongoClient } from 'mongodb';
 
-// const URL = 'mongodb://sanjay:vicktoria@localhost:27017/storageApp';
+// const URL = 'mongodb://username:passsword@localhost:27017/storageApp';
 // export const client = new MongoClient(URL);
 
 // export async function connectDB() {
